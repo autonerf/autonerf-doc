@@ -4,7 +4,7 @@
 \usepackage{inconsolata}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
+\usepackage[english,dutch]{babel}
 \usepackage[chapter]{minted}
 \usepackage{a4wide}
 \usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
@@ -12,6 +12,7 @@
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
 \usepackage[toc,page]{appendix}
+\usepackage[inline]{enumitem}
 
 \usepackage{tikz}
 \usetikzlibrary{trees}
@@ -23,9 +24,11 @@
 
 \newcommand{\code}[1]{\textbf{\texttt{#1}}}
 
-\hypersetup{pdftitle={Timebridge}}
+\hypersetup{pdftitle={Autonerf}}
 
 \begin{document}
+    \include{figures/setup}
+
     \usemintedstyle{github}
     \newminted{cpp}{gobble=4,linenos,fontsize=\small,
         bgcolor=black!10}
@@ -53,8 +56,5 @@
     \input{chapters/conclusion}
 
     \begin{appendices}
-    \input{appendix/vagrant.tex}
-    \input{appendix/plugin.tex}
-    \input{appendix/daemon.tex}
     \end{appendices}
 \end{document}

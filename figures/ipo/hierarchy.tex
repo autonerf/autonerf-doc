@@ -1,0 +1,44 @@
+\begin{tikzpicture}[font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=.25cm,row sep=1cm},
+  source/.style={inner sep=.3cm},
+  process/.style={draw,thick,rounded corners,fill=yellow!10,inner sep=.3cm},
+  sink/.style={source},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={>=stealth',shorten >=1pt,thick,font=\sffamily\footnotesize},
+  sub/.style={->,to},
+  every node/.style={align=center,font=\footnotesize}]
+
+    \matrix {
+        \node[process](reader){Reader};
+            \& \& \node[process](detector){Detector};
+            \& \& \node[process](recognizer){Recognizer};
+            \& \& \node[process](localizer){Localizer};
+            \& \& \node[process](controller){Controller}; \\
+
+        \& \& \& \node[process](enhance){Enhancer};
+        \& \& \node[process](seg2){Segmentator}; \\
+
+        \& \& \& \node[process](seg1){Segmentator};
+        \& \& \node[process](extr2){Feature extractor}; \\
+
+        \& \& \& \node[process](extr1){Feature extractor};
+        \& \& \node[process](class2){Classifier}; \\
+
+        \& \& \& \node[process](class1){Classifier}; \\
+    };
+
+    \draw[to](reader) -- (detector);
+    \draw[to](detector) -- (recognizer);
+    \draw[to](recognizer) -- (localizer);
+    \draw[to](localizer) -- (controller);
+
+    \draw[sub](detector) |- (enhance);
+    \draw[sub](detector) |- (seg1);
+    \draw[sub](detector) |- (extr1);
+    \draw[sub](detector) |- (class1);
+
+    \draw[sub](recognizer) |- (seg2);
+    \draw[sub](recognizer) |- (extr2);
+    \draw[sub](recognizer) |- (class2);
+\end{tikzpicture}
