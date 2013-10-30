@@ -1,0 +1,60 @@
+\documentclass[10pt,a4paper,twoside,openright]{report}
+
+\usepackage[default]{lato}
+\usepackage{inconsolata}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[chapter]{minted}
+\usepackage{a4wide}
+\usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[pdftex]{hyperref}
+\usepackage[toc,page]{appendix}
+
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usetikzlibrary{decorations}
+\usetikzlibrary{arrows,positioning,shapes}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{automata}
+
+\newcommand{\code}[1]{\textbf{\texttt{#1}}}
+
+\hypersetup{pdftitle={Timebridge}}
+
+\begin{document}
+    \usemintedstyle{github}
+    \newminted{cpp}{gobble=4,linenos,fontsize=\small,
+        bgcolor=black!10}
+    \newminted{puppet}{gobble=4,linenos,fontsize=\small,
+        bgcolor=black!10}
+    \newminted{bash}{gobble=4,linenos,fontsize=\small,
+        bgcolor=black!10}
+    \newminted{ruby}{gobble=4,linenos,fontsize=\small,
+        bgcolor=black!10}
+    \newminted{ini}{gobble=4,linenos,fontsize=\small,
+        bgcolor=black!10}
+
+    \input{titlepage}
+
+    \input{chapters/abstract}
+    \input{chapters/foreword}
+    \tableofcontents
+    \listoffigures
+    \listoflistings
+    \input{chapters/introduction}
+    \input{chapters/functional}
+    \input{chapters/technical}
+    \input{chapters/realization}
+    \input{chapters/testing}
+    \input{chapters/conclusion}
+
+    \begin{appendices}
+    \input{appendix/vagrant.tex}
+    \input{appendix/plugin.tex}
+    \input{appendix/daemon.tex}
+    \end{appendices}
+\end{document}
