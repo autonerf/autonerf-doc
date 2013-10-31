@@ -12,33 +12,21 @@
     \matrix {
         \node[process](reader){Reader};
             \& \& \node[process](detector){Detector};
-            \& \& \node[process](recognizer){Recognizer};
             \& \& \node[process](localizer){Localizer};
             \& \& \node[process](controller){Controller}; \\
 
-        \& \& \& \node[process](enhance){Enhancer};
-        \& \& \node[process](seg2){Segmentator}; \\
-
-        \& \& \& \node[process](seg1){Segmentator};
-        \& \& \node[process](extr2){Feature extractor}; \\
-
-        \& \& \& \node[process](extr1){Feature extractor};
-        \& \& \node[process](class2){Classifier}; \\
-
+        \& \& \& \node[process](enhance){Enhancer}; \\
+        \& \& \& \node[process](seg1){Segmentator}; \\
+        \& \& \& \node[process](extr1){Feature extractor}; \\
         \& \& \& \node[process](class1){Classifier}; \\
     };
 
     \draw[to](reader) -- (detector);
-    \draw[to](detector) -- (recognizer);
-    \draw[to](recognizer) -- (localizer);
+    \draw[to](detector) -- (localizer);
     \draw[to](localizer) -- (controller);
 
     \draw[sub](detector) |- (enhance);
     \draw[sub](detector) |- (seg1);
     \draw[sub](detector) |- (extr1);
     \draw[sub](detector) |- (class1);
-
-    \draw[sub](recognizer) |- (seg2);
-    \draw[sub](recognizer) |- (extr2);
-    \draw[sub](recognizer) |- (class2);
 \end{tikzpicture}

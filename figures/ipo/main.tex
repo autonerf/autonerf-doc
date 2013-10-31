@@ -9,18 +9,13 @@
   every node/.style={align=center,font=\footnotesize}]
 
     \matrix {
-        \& \& \node[process](rec){Recognizer};\\
-
         \node[process](read){Reader};
             \& \node[process](detect){Detector};
+            \& \node[process](local){Localizer};
             \& \node[process](control){Controller}; \\
-
-        \& \& \node[process](local){Localizer}; \\
     };
 
     \draw[to](read) -- (detect);
-    \draw[to](detect) |- (rec);
-    \draw[to](detect) |- (local);
-    \draw[to](rec) -- (control);
+    \draw[to](detect) -- (local);
     \draw[to](local) -- (control);
 \end{tikzpicture}
