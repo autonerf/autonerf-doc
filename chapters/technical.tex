@@ -32,13 +32,11 @@ is verantwoordelijk voor het uitlezen van de camera en het verkrijgen van indivi
 frames vanuit de camera. Dit systeem stuurt de uitgelezen frames door naar het
 \emph{detector} subsysteem die probeert gezichten te detecteren in het systeem.
 Als dit gelukt is en een gezicht gedetecteerd is word de data doorgestuurd naar
-de \emph{recognizer} en \emph{localizer} subsystemen. Het \emph{recognizer}
-subsysteem probeert het gedetecteerde gezicht te herkennen. Als een gezicht
-herkend wordt, wordt dit doorgegeven aan het \emph{controller} subsysteem.
-Het \emph{localizer} subsysteem berekend de locatie van het gezicht en de afwijking
-ervan tot het centrum van het frame (met eventueel een bepaalde toegestane
-\emph{offset}). Het \emph{controller} subsysteem is uiteindelijk verantwoordelijk
-voor de aansturing van de Nerfgun.
+de \emph{recognizer} en \emph{localizer} subsystemen. Het \emph{localizer}
+subsysteem berekend de locatie van het gezicht en de afwijking ervan tot het
+centrum van het frame (met eventueel een bepaalde toegestane \emph{offset}).
+Het \emph{controller} subsysteem is uiteindelijk verantwoordelijk voor de
+aansturing van de Nerfgun.
 
 \subsection{De \emph{reader}}
 
@@ -106,56 +104,6 @@ Als input verwacht het \emph{classifier} subsysteem de output van het \emph{feat
 extractor} subsysteem. De \emph{Haar Classifier} beslist op basis van het aantal
 en de verdeling van de Haar features of er sprake is van een gezicht of niet.
 De output zijn de coordinaten van de gedetecteerde gezichten.
-
-\subsection{De \emph{recognizer}}
-
-Het \emph{recognizer} subsysteem (figuur \ref{fig:ipo-recognizer}) heeft als
-inputs:
-
-\begin{enumerate}
-    \item De coordinaten van gedetecteerde gezichten;
-    \item en het frame ontvangen door het \emph{detector} subsysteem.
-\end{enumerate}
-
-Als output heeft het subsysteem een persoon wat eventueel herkend is. Als er
-geen persoon herkend is in het frame heeft het systeem geen verdere outputs.
-Het systeem vervult, net als het \emph{detector} subsysteem de stappen \emph{segmentation},
-\emph{feature extraction} en \emph{classification} binnen het vision-model. Er
-zijn dan ook dezelfde subsystem aanwezig als binnen het \emph{detector} subsysteem.
-
-\begin{figure}[H]
-    \begin{center}
-        \input{figures/ipo/recognizer.tex}
-    \end{center}
-    \caption{Het IPO-schema van het \emph{recognizer} subsysteem}
-    \label{fig:ipo-recognizer}
-\end{figure}
-
-\subsubsection{Segmentator}
-
-De input van het \emph{segmentator} sub-subsysteem is het frame wat verkregen is
-door het \emph{reader} subsysteem. Dit systeem maakt gebruik van \emph{Local
-Binary Patterns} (LBP) om gezichten te herkennen. Het LBP algoritme vergelijkt
-door middel van thresholds elke pixel met zijn \emph{neighbours}. De output
-van het \emph{segmentator} systeem is een LBP-matrix waarin elke pixel een
-waarde heeft die de lokale structuur van zijn neighbours aangeeft.
-
-\subsubsection{Feature extractor}
-
-De input van het \emph{feature extractor} subsubsysteem is de LBP-matrix die door
-het \emph{segmentator} subsysteem berekend wordt. Deze matrix wordt opgedeeld
-in lokale regio's. Van deze regio's wordt een histogram gemaakt die vervolgens
-gelinkt in een matrix worden geplaatst waardoor de features in alle regio's
-zichtbaar zijn. Deze histogram-matrix is de output van het \emph{feature
-extractor} subsubsysteem.
-
-\subsubsection{Classifier}
-
-De input van het \emph{classifier} sub-subsysteem is de histogram-matrix output
-van het \emph{segmentator} sub-subsysteem. Deze matrix wordt vergeleken met matrixes
-van foto's uit de gezichten database. Op basis van overeenkomsten wordt bepaald
-of de gezichten van dezelfde persoon zijn. De output van het systeem is een
-voorspeld label (elk persoon heeft in de database zijn eigen label).
 
 \subsection{De \emph{localizer}}
 

@@ -1,2 +1,179 @@
 \chapter{Realisatie}
 \label{ch:realization}
+
+\section{Software}
+
+De software van het Autonerf systeem is geïmplementeerd in C++ waarbij gebruikt
+wordt gemaakt van de libraries van OpenCV. OpenCV is een groep libraries die
+ontwikkeld zijn voor \emph{computer vision} (OpenCV staat dan ook voor
+\emph{Open Computer Vision}).
+
+De software is \emph{event driven} geschreven. Dit betekend dat, in plaats dat
+er gepolled wordt door object voor data, er met events wordt gewerkt. Wanneer
+er binnen een object een event plaatsvindt, worden andere \emph{subscribers}
+hier van op de hoogte gebracht.
+
+Events worden met een basisklasse (\code{Autonerf::Emitter}) ge-\emph{emit}.
+Objecten kunnen door een handler te registreren (met behulp van de \code{on}
+methode) ``luisteren'' voor events.
+
+\subsection{De \emph{reader}}
+
+Voor het uitlezen van de camera beelden door de \code{Reader} klasse wordt
+gebruik gemaakt van de OpenCV klasse \code{cv::VideoCapture}. Deze klasse geeft
+een \code{cv::Mat} object wat een RGB frame representeerd (zie \ref{ls:reader}).
+
+\begin{listing}[H]
+    \begin{cppcode}
+    cv::Mat frame;
+
+    if (!this->capture.isOpened()) {
+        throw std::runtime_error("Cannot capture frame from closed device.");
+    }
+
+    if (!this->capture.grab()) {
+        return;
+    }
+
+    if (!this->capture.read(frame)) {
+        throw std::runtime_error("Could not read frame from capture device.");
+    }
+
+    this->emit("frame", json_integer((json_int_t) &frame));
+    \end{cppcode}
+    \caption{Het uitlezen van een frame van de camera.}
+    \label{ls:reader}
+\end{listing}
+
+\subsection{De \emph{detector}}
+
+Alle subsystemen van het \emph{detector} subsysteem worden geïmplementeerd door
+de OpenCV klasse \code{cv::CascadeClassifier}. Deze klasse maakt gebruik van
+Haar cascades om gezichten te detecteren in beelden (zie listing \ref{ls:classifier}).
+
+\begin{listing}[H]
+    \begin{cppcode}
+    std::vector<cv::Rect> faces;
+
+    this->classifier.detectMultiScale(
+        grayscale,
+        faces,
+        1.1,
+        3,
+        CV_HAAR_FIND_BIGGEST_OBJECT|CV_HAAR_SCALE_IMAGE,
+        cv::Size(50, 50)
+    );
+
+    if (face.size() > 0) {
+        this->emit(
+            "detected",
+            // informatie van locatie grootste gezicht in beeld
+        );
+    }
+    \end{cppcode}
+    \caption{Het detecteren van gezichten met de \code{cv::CascadeClassifier} klasse}
+    \label{ls:classifier}
+\end{listing}
+
+\subsubsection{Enhancer}
+
+Het frame wat uitgelezen is door de \emph{reader} klasse wordt geconverteerd
+naar een grayscale beeld met behulp van de \code{cv::cvtColor} (zie listing \ref{ls:det-enhc})
+method. Dit wordt gedaan omdat de \emph{Segmentator} een grayscale beeld verwacht.
+Daarnaast wordt er een \emph{histogram equalization} uitgevoerd. Hiermee wordt
+het contrast van het beeld verbeterd waardoor de intensiteit beter verdeeld is.
+Door dit te doen worden details in het hele beeld beter zichtbaar, waardoor de
+de gezichtsdetectie en -herkenning makkelijker verlopen. Figuur \ref{fig:sinterklaas1}
+en \ref{fig:sinterklaas2} laat een voorbeeld zien van deze operatie.
+
+\begin{listing}[H]
+    \begin{cppcode}
+    cv::cvtColor(frame, grayscale, CV_BGR2GRAY);
+
+    cv::equalizeHist(grayscale, grayscale);
+    \end{cppcode}
+    \caption{Het \emph{enhancen} van uitgelezen camera beelden}
+    \label{ls:det-enhc}
+\end{listing}
+
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \includegraphics[width=\linewidth]{figures/sint-before.png}
+        \caption{Voor \emph{histogram equalization}}
+        \label{fig:sinterklaas1}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \includegraphics[width=\linewidth]{figures/sint-after.png}
+        \caption{Na \emph{histogram equalization}}
+        \label{fig:sinterklaas2}
+    \end{minipage}
+\end{figure}
+
+\subsubsection{Segmentator}
+
+De \emph{segmentator} verzorgt de segmentatie van ontvangen frames. Het hele frame
+afgegaan waarbij elke pixel wordt vergeleken met zijn omgeving. De pixel waarden
+van de omgeving worden geïntegreerd waarna deze waarde in de pixel wordt gezet
+die met zijn omgeving is vergeleken.
+
+\subsubsection{Feature extractor}
+
+Nadat alle pixels zijn geïntegreerd met hun omgeving wordt er gekeken welke Haar
+features er aanwezig zijn in het beeld. Dit wordt gedaan door van elke Haar
+feature de gemiddelde pixelwaarde van het donkere deel af te trekken van de
+gemiddelde pixel waarde van het lichte deel. Als deze waarde boven een bepaalde
+threshold ligt wordt er aangenomen dat de Haar feature aanwezig is in de regio
+van het beeld waar op dat moment naar wordt gekeken. OpenCV verzorgd standaard
+een aantal files die Haar features beschrijven, waaronder één die een gezicht
+van de voorkant beschrijft. In het Autonerf systeem wordt dit bestand gebruikt.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.75]{figures/haar-features.png}
+        \caption{Haar features in een gezicht}
+    \end{center}
+\end{figure}
+
+\vfill
+\pagebreak
+
+\subsubsection{Classifier}
+
+De door de \emph{feature extractor} beschreven Haar features en thresholds worden
+bepaald door een techniek voor \emph{machine-learning} genaamd AdaBoost. Met deze
+techniek wordt er per regio gekeken of een door AdaBoost geselecteerde Haar
+feature aanwezig is. Als dit niet het geval is wordt de regio direct afgeschreven
+als gezicht. Als het wél het geval is gaat de regio door naar de volgende \emph{stage}
+en wordt een andere feature geselecteerd, et cetera. Als de regio succesvol alle
+\emph{stages} passeert is er sprake van een gezicht.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.75]{figures/adaboost-classification.png}
+        \caption{AdaBoost classificatie}
+    \end{center}
+\end{figure}
+
+\subsection{De \emph{localizer}}
+
+Het lokaliseren van gezichten is eigenlijk een triviale taak. Zodra de coordinaten
+(binnen het frame) bekend zijn van het gezicht, kan hiermee de ruimtelijke
+afwijking van het gezicht ten opzichte van het centrum van het frame.
+
+Als we het centrum van het frame $(0, 0)$ dopen, kan de locatie van het gezicht
+worden geschreven als $(x, y)$. Een camera heeft een zogenaamd
+\emph{field-of-view} (FOV) wat in graden wordt uitegedrukt. Door middel van deze
+eigenschap van de camera, kan precies berekend worden hoeveel graden per pixel
+er in het frame zitten (zowel horizontaal als verticaal).
+
+Als voorbeeld nemen we een camera die een resolutie heeft van $640 \times 480$
+pixels en een FOV van $45\,^{\circ}$. Hieruit volgt dat het aantal graden per pixel
+is: $45\,^{\circ} / 640 = 0.07{\rm \,^{\circ}/p}$ horizontaal en
+$45\,^{\circ} / 480 = 0.09{\rm \,^{\circ}/p}$ verticaal. De algemene vergelijking
+is dus:
+
+\begin{equation}
+    G_x,_y = \frac{FOV}{Resolutie_x,_y}
+\end{equation}
+
+(Hierin is $G_x,_y$ de horizontale en verticale afwijking.)
