@@ -45,6 +45,9 @@ een \code{cv::Mat} object wat een RGB frame representeerd (zie \ref{ls:reader}).
     \label{ls:reader}
 \end{listing}
 
+\vfill
+\pagebreak
+
 \subsection{De \emph{detector}}
 
 Alle subsystemen van het \emph{detector} subsysteem worden geïmplementeerd door
@@ -162,7 +165,7 @@ afwijking van het gezicht ten opzichte van het centrum van het frame.
 
 Als we het centrum van het frame $(0, 0)$ dopen, kan de locatie van het gezicht
 worden geschreven als $(x, y)$. Een camera heeft een zogenaamd
-\emph{field-of-view} (FOV) wat in graden wordt uitegedrukt. Door middel van deze
+\emph{field of view} (FOV) wat in graden wordt uitegedrukt. Door middel van deze
 eigenschap van de camera, kan precies berekend worden hoeveel graden per pixel
 er in het frame zitten (zowel horizontaal als verticaal).
 
@@ -170,10 +173,124 @@ Als voorbeeld nemen we een camera die een resolutie heeft van $640 \times 480$
 pixels en een FOV van $45\,^{\circ}$. Hieruit volgt dat het aantal graden per pixel
 is: $45\,^{\circ} / 640 = 0.07{\rm \,^{\circ}/p}$ horizontaal en
 $45\,^{\circ} / 480 = 0.09{\rm \,^{\circ}/p}$ verticaal. De algemene vergelijking
-is dus:
+is te zien in \ref{eq:dpp}. In deze vergelijking is $G_x,_y$ het aantal graden
+per pixel in het frame. $F$ is de \emph{field of view} van de camera en $R_x,_y$
+is de resolutie van de $x$ en $y$ as.
 
 \begin{equation}
-    G_x,_y = \frac{FOV}{Resolutie_x,_y}
+    G_x,_y = \frac{F}{R_x,_y}
+    \label{eq:dpp}
 \end{equation}
 
-(Hierin is $G_x,_y$ de horizontale en verticale afwijking.)
+\vfill
+\pagebreak
+
+Daarnaast moet er ook een afwijking in pixels worden berekend. Om dit te doen
+wordt gebruik gemaakt van het originele frame dat ontvangen is. Door de resolutie
+van dit frame te gebruiken (de $R,_y$ uit de vergelijking \ref{eq:dpp}) kan de
+afwijking zowel horizontaal als vertikaal worden berekend (vergelijking \ref{eq:offset}).
+
+\begin{equation}
+    \Delta_x,_y = {L_x,_y} - {C_x,_y}
+    \label{eq:offset}
+\end{equation}
+
+In deze vergelijking is $\Delta_x,_y$ de \emph{offset}, $C_x,_y$ is het centrum
+van het frame (als een frame $(640,480)$ pixels is, is het
+centrum van dit frame $(320,240)$). $L_x,_y$ is de locatie van het gedetecteerde
+gezicht wat door de \emph{detector} gedetecteerd is.
+
+Door vergelijking \ref{eq:dpp} en \ref{eq:offset} combineren, is het mogelijk
+de offset van het gedetecteerde gezicht in graden uit te drukken (vergelijking
+\ref{eq:combined}).
+
+\begin{equation}
+    \Delta_x,_y = \frac{F}{R_x,_y}({L_x,_y} - {C_x,_y})
+    \label{eq:combined}
+\end{equation}
+
+Het is echter voor het systeem niet mogelijk om precies op 0 te komen, daarom
+is er een foutmarge geïmplementeerd (de \emph{margin}, $m$). Als $\Delta_x,_y$ binnen
+deze \emph{margin} valt, wordt de offset naar 0 gebracht.
+
+\begin{equation}
+    \Delta_x,_y = \begin{cases}
+        \Delta_x,_y, & \text{als } \Delta_x,_y \geq m\\
+        0 & \text{als } \Delta_x,_y < m
+    \end{cases}
+\end{equation}
+
+Zoals te zien in listing \ref{ls:offset} is dit relatief makkelijk te implementeren
+in C++.
+
+\begin{listing}[H]
+    \begin{cppcode}
+    double dpp[] = {
+        ((double) this->fov) / ((double) frame.cols)),
+        ((double) this->fov) / ((double) frame.rows))
+    };
+    int offset[] = {
+        (x - (frame.cols / 2)),
+        (y - (frame.rows / 2))
+    };
+    int radial[] = {
+        ((double) offset[0]) * dpp[0],
+        ((double) offset[1]) * dpp[1]
+    };
+
+    if (offset[0] < this->margin &&
+        offset[1] < this->margin &&
+        offset[0] > -(this->margin) &&
+        offset[1] > -(this->margin)) {
+        this->emit(
+            "fire"
+        );
+    } else {
+        this->emit(
+            "localized",
+            // Location data
+        );
+    }
+    \end{cppcode}
+    \caption{Het \emph{localizen} van gedetecteerde gezichten}
+    \label{ls:offset}
+\end{listing}
+
+\vfill
+\pagebreak
+
+\subsection{De \emph{controller}}
+
+De \emph{controller} is verantwoordelijk voor het aansturen van het Autonerf
+systeem. Dit gebeurd middels een seriële verbinding waar JSON-data over verstuurd
+wordt. Voor de seriële communicatie wordt gebruik gemaakt van een Boost library
+(\code{boost::asio}).
+
+Omdat alle data binnen het systeem ook als JSON wordt verzonden, kunnen de
+events van die de \emph{localizer} klasse verstuurd gebruikt worden om het
+embedded systeem aan te sturen. Om deze rede heeft de \emph{controller} weinig
+logica. Er wordt alleen geschreven naar een seriele port (bijvoorbeeld \code{/dev/tty.usbmodem}).
+Hoe dit wordt gedaan wordt getoond in listing \ref{ls:serial}. In deze listing
+is de \code{this->serial} variabele een object van de \code{boost::asio::serial\_port}
+klasse. De data die verzonden wordt is te zien in listing \ref{ls:output}.
+
+\begin{listing}[H]
+    \begin{cppcode}
+    void
+    Controller::write(const std::string& data)
+    {
+        boost::asio::write(this->serial, boost::asio::buffer(data.c_str(), data.size()));
+    }
+    \end{cppcode}
+    \caption{Schrijven naar een seriële port}
+    \label{ls:serial}
+\end{listing}
+
+\begin{listing}[H]
+    \begin{jsoncode}
+    {"command": "aim", "options": {"offset": [-0.38671875, 3.4375]}}
+    {"command": "fire", "options": {}}
+    \end{jsoncode}
+    \caption{Output over de seriële port}
+    \label{ls:output}
+\end{listing}

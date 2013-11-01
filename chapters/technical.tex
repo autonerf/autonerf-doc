@@ -26,6 +26,7 @@ hierarchie van deze sub-blokken is te zien in figuur \ref{fig:hierarchy}.
 \end{figure}
 
 \section{Architectuur}
+\label{sec:arch}
 
 De data-flow van het systeem begint bij het \emph{reader} subsysteem. Dit subsysteem
 is verantwoordelijk voor het uitlezen van de camera en het verkrijgen van individuele
@@ -140,4 +141,32 @@ worden.
     \end{center}
     \caption{Het IPO-schema van het \emph{controller} subsysteem}
     \label{fig:ipo-controller}
+\end{figure}
+
+\section{Hardware}
+
+Zoals te zien in figuur \ref{fig:hardware-schematic} zijn er in het hardware
+ontwerp verschillende onderdelen:
+
+\begin{itemize}
+    \item De camera's
+    \item De \emph{vision controller} (het eerder beschreven systeem in sectie \ref{sec:arch})
+    \item De \emph{I/O controller}
+    \item De \emph{tilt control}
+    \item De \emph{pan control}
+    \item De \emph{shot control}
+\end{itemize}
+
+De in de figuur getoonde \emph{I/O controller} is
+verantwoordelijk voor het aansturen van de \emph{pan}, \emph{tilt} en
+\emph{shot} control. Dit is geïmplementeerd als een embedded systeem die op het
+platform aanwezig is. De controllers (pan, tilt en shot) worden aangestuurd
+middels een digitaal signaal (denk aan PWM of een hoog/laag output).
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/hardware-schematic.tex}
+    \end{center}
+    \caption{Globaal hardware overzicht}
+    \label{fig:hardware-schematic}
 \end{figure}
