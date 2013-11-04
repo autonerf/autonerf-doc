@@ -294,3 +294,151 @@ klasse. De data die verzonden wordt is te zien in listing \ref{ls:output}.
     \caption{Output over de seriële port}
     \label{ls:output}
 \end{listing}
+
+\section{Hardware}
+
+Het lanceer systeem met camera wordt op een platform van hout (lasergesneder)
+gemonteerd. Dit betekend dat er 10 lucht slangen, een camera kabel en tilt servo
+kabel als bundel naar het platform worden geleid. De lucht kleppen zijn op het
+lanceer platform geplaatst, waardoor de lucht slangen een geringe lengte hebben.
+
+\subsection{Shot control}
+
+De shot control is een array van 10 MOSFETs die minimaal 1A kunnen schakelen
+ter behoeve van de inschakelstroom van de kleppen. Daarnaast dient er een
+blusdiode bij of in te zitten om de uitschakel piek te dempen. Een extern
+signaal zorgt er voor dat de kleppen een bepaalde tijd open blijven of kan zorgen
+zelfs voor een Rapid Boost™ lancering.
+
+\subsection{Tilt control}
+
+Tilt control wordt gestuurd door een servo motor die met een arm aan het lanceer
+compartiment wordt bevestigd. De servo zal verder worden bestuurd via een
+externe constant PWM source die zorgt voor de juiste frequentie en timing van
+het pulsen signaal.
+
+\subsection{Pan control}
+
+Pan control wordt ook gestuurd via een servo. Het pan platform wordt direct op
+de servo gemonteerd.
+
+\subsection{CPU}
+
+De I/O controller is voorzien van een CPU om seriële commando’s vanuit de PC te
+kunnen verwerken. De servo’s hebben een constant signaal nodig, dit is een van
+de taken van de CPU. Daarnaast dienen er schoten gelost te kunnen worden, de
+CPU bepaald hoe lang een luchtklep open staat. Zodoende kan het nooit zo zijn
+dat er een klep overbodig lang open blijft staan.
+
+Als CPU hebben we een Arduino gebruikt. Dit omdat een Arduino goedkoop is en
+makkelijk 2 PWM kanalen kan aansturen. De kleppen worden aangestuurd via GPIO
+pinnen, er zitten voldoende pinnen op de Arduino om dit te aan te kunnen sturen.
+Ook seriële communicatie kan doordat er reeds en USB naar UART conversie IC
+opzit ten behoeven.
+
+\subsection{Veiligheid}
+
+Om het onverwachts schieten te voorkomen wordt er een uitgebreide beveiliging
+ingebouwd (zie bijlagen \ref{app:schematics} en \ref{app:pcb}). Deze beveiliging
+zal voornamelijk in de hardware terug te vinden zijn, omdat dit de meest
+betrouwbare bron is voor beveiliging.
+
+De lucht kleppen kunnen niet geactiveerd worden wanneer de \code{Reset} actief
+is. Om daar een extra veiligheid aan toe te voegen moet het veiligheidscircuit
+langer actief blijven dan de microcontroller zodat er ook niks tijdens het booten van de
+software kan gebeuren. Daarnaast moet hij ook nog geactiveerd worden door een
+losse pin op de microcontroller. En tot slot zit er een extra \code{Enable shot} schakelaar
+op die via een flip-flop wordt geactiveerd (push button). Wanneer er spanning
+weg valt, een reset wordt uitgevoerd of iets anders zonder dat deze schakelaar
+uit is gezet zal hij gereset worden. Zo wordt er gezorgd voor een maximale
+beveiliging als het systeem aan staat en de microcontroller wordt geprogrammeerd.
+
+\subsection{Behuizing}
+
+De behuizing van het systeem wordt een 10-stage raket lanceer station. Iedere
+stage krijgt dus 1 buisje ter behoeve van de luchtdruk. Er kunnen dus maximaal 10
+schoten worden gelost voor er herladen dient te worden.
+
+\subsubsection{Launcer}
+
+De zo genaamde \emph{launcher} is het beweegbare compartiment waar alle
+Nerf darts in worden geladen om af te schieten (zie bijlage \ref{app:launcher}).
+Deze richt ook op de persoon.
+
+De servo voor het tilt systeem wordt op het pan platform gemonteerd en met een
+arm aan de launcher bevestigd. Dit wordt gedaan om de last op de servo te
+verminderen en de respons van het systeem dus beter te maken. Ook wordt er
+aanbevolen om het scharnierpunt niet helemaal achteraan te leggen zodat er een
+contragewicht is om nog meer last van de servo te halen.
+
+Om het juiste montage punt van de arm van de servo te bepalen is er een serie
+driehoek berekeningen nodig. Daarnaast kan er middels deze berekeningen ook de
+hoogte worden bepaald ten opzichte van het pan platform (in verband met de
+neerwaartse beweging van het contragewicht).
+
+Figuur \ref{fig:servo-montage} toont een schematische weergave van het systeem.
+In deze figuur is $S_1$ de lengte van het scharnierpunt tot de voorkant, $S_2$
+is de lengte van het scharnierpunt tot de achterkant. $\alpha$ geeft de maximale
+hoek aan van de \emph{launcher} en $\Delta{B}$ is de uitslag van de achterkant (
+de minimale hoogte van de \emph{launcher}).
+
+Het bevestigingspunt van de arm van de servo op lengte $S_1$ ten opzichte van het
+kantelpunt kan worden bepaald met de formule \ref{eq:bevestiging}.
+
+\begin{equation}
+    P = \frac{2r}{\text{sin } \alpha}
+    \label{eq:bevestiging}
+\end{equation}
+
+In deze formule is $r$ de lengte van de as tot het bevestigingspunt van de arm
+van de servo. Bij een kruisvormige servo-arm zal deze afstand ongeveer 16 \unit{mm}
+zijn. $P$ is het bevestiginspunt op lengte $S_1$.
+
+\begin{figure}
+    \includegraphics{figures/servo-montage.png}
+    \caption{Schematische weergave servo montage punt}
+    \label{fig:servo-montage}
+\end{figure}
+
+Door gebruik te maken van formule \ref{eq:bevestiging} is het mogelijk om de minimale
+montage hoogte van de launcher te bepalen:
+
+\begin{equation}
+    \Delta{B} = S_2 \text{sin } a
+\end{equation}
+
+Bij het maken van deze berekening is het belangrijk rekening te houden met het
+bevestigingspunt $P$ zodat de servo niet te veel kracht moet zetten (dus niet
+te dicht bij het scharnierpunt). Daarnaast is het belangrijk wel een goede
+hoek/actieradius te hebben. Dit is afhankelijk van de kijkhoek van de
+camera en op welke afstand het systeem mensen moet kunnen herkennen/raken.
+
+\subsubsection{Camera's}
+
+De camera’s komen boven op het lanceer station zodat de software een gezicht
+kan detecteren en de motor vervolgens naar een bepaald vast punt in het camera
+beeld dient te bewegen. Voor de veiligheid kan er besloten worden dit punt wat
+hoger te leggen als het midden van het scherm. Zo bestaat er een kleinere kans
+dat iemand daadwerkelijk in het gezicht geraakt wordt.
+
+\subsubsection{Pan platform}
+
+Het pan platform (zie bijlage \ref{app:pan-platform} is enkel voorzien van een
+montage houder voor de tilt servo en voetjes voor de montage van het lanceer
+platform.
+
+Bij het ontwerp van dit platform moet rekening gehouden worden met het
+zwaartepunt. Dit moet zo ver mogelijk in het midden van de pan servo liggen om
+een stabiel systeem te hebben. Omdat het zwaarte punt constant veranderd door
+het aantal Nerf darts en tilt hoek nemen we het midden van de ‘launcher’ als
+zwaartepunt. Dan zal de tilt servo ongeveer op het tilt punt komen te zitten.
+
+\subsubsection{Basisstation}
+
+Het laatste onderdeel is het platform waarin de pan servo wordt gemonteerd en de
+aansturing. Het basisstation (zie bijlage \ref{app:base-platform}) moet een
+goede constructie voor de pan servo geven zodat deze stabiel kan bewegen.
+Daarnaast wordt op de achterkant de aansturing bevestigd. Het is belangrijk dat
+de nodige beveiligingssystemen die op de aansturing zitten eenvoudig te bedienen
+zijn. De aansturing wordt dan ook bij voorkeur achter het lanceer systeem en
+buiten het bereik van het pan platform.

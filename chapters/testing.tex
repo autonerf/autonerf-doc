@@ -1,12 +1,10 @@
 \chapter{Testen en Resultaten}
 \label{ch:testing}
 
-Het is op het moment van schrijven helaas nog niet mogelijk om een volledige
-functionele test te doen. Het is echter wel mogelijk geweest om het computer
-programma wat draait op de gewone computer te testen. Deze is in staat om
-gezichten te volgen en een commando naar de console te outputten. Dit is
-eenzelfde commando dat via de seriële verbinding naar de Arduino verstuurd
-zal worden.
-
-Daarnaast is het wel mogelijk geweest om de \emph{pan} en \emph{tilt} control
-te testen.
+Na het systeem gemonteerd, geassambleerd getest te hebben blijkt hieruit dat het
+werkt. Echter is door de lage resolutie van de camera het niet altijd mogelijk
+om gezichten te detecteren (vooral wanneer ze een redelijke afstand hebben
+tot de camera). Wanneer het systeem een gezicht wel herkend werkt het echter
+naar behoren, albeit redelijk langzaam. Dit is iets wat eventueel verder uitgezocht
+kan worden (met behulp van, bijvoorbeeld, Valgrind om de applicatie te
+\emph{profilen}).

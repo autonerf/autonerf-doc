@@ -11,9 +11,14 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
-\usepackage[toc,page]{appendix}
 \usepackage[inline]{enumitem}
 \usepackage{amsmath}
+\usepackage{units}
+
+\usepackage[toc,page]{appendix}
+\renewcommand{\appendixname}{Bijlagen}
+\renewcommand{\appendixtocname}{Bijlagen}
+\renewcommand{\appendixpagename}{Bijlagen}
 
 \usepackage{tikz}
 \usetikzlibrary{trees}
@@ -36,11 +41,9 @@
 
     \input{titlepage}
 
-    \input{chapters/abstract}
-    \input{chapters/foreword}
     \tableofcontents
     \listoffigures
-    \listoflistings
+
     \input{chapters/introduction}
     \input{chapters/functional}
     \input{chapters/technical}
@@ -49,5 +52,10 @@
     \input{chapters/conclusion}
 
     \begin{appendices}
+    \input{appendix/launcher}
+    \input{appendix/pan-platform}
+    \input{appendix/base-platform}
+    \input{appendix/schematics}
+    \input{appendix/pcbs}
     \end{appendices}
 \end{document}
