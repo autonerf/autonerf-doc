@@ -1,6 +1,24 @@
 \chapter{Planning}
 
-Bijlage \ref{app:planning} bevat de planning van de in hoofdstuk 3 besproken
+Figuur \ref{fig:planning} bevat de planning van de in hoofdstuk 3 besproken
 activiteiten. Bij het toewijzen van de planning van de activiteiten is rekening
-gehouden met onverwachte vertragingen. Tevens zijn de milestones van het project
-aangegeven in de planning.
+gehouden met onverwachte vertragingen.
+
+\begin{figure}[H!]
+    \begin{ganttchart}[vgrid=true,x unit=1cm]{10}
+    \gantttitlelist{1,...,10}{1} \\
+
+        \ganttbar{Functioneel ontwerp}{1}{1} \\
+        \ganttbar{Vision ontwerp}{2}{2} \\
+        \ganttbar{\emph{Acquisition}}{2}{3} \\
+        \ganttbar{\emph{Enhancement}}{4}{6} \\ 
+        \ganttbar{\emph{Segmentation}}{2}{3} \\ 
+        \ganttbar{\emph{Classification}}{4}{6} \\
+        \ganttbar{Aansturing Autonerf}{5}{7} \\
+        \ganttbar{Testen}{5}{10} \\ 
+        \ganttbar{Productrapport}{8}{10} \\
+
+    \end{ganttchart}
+    \caption{Planning project}
+    \label{fig:planning}
+\end{figure}
