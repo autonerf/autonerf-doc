@@ -1,0 +1,80 @@
+\chapter{Eisen en wensen}
+
+Om een goed werkend systeem te kunnen maken zijn er een aantal
+minimale eisen waaraan een geselecteerd systeem aan moet voldoen.
+Iedere verhoging heeft zo zijn consequenties verder in het traject.
+De eisen en wensen staan op volgorde, wordt voor het bovenste item
+een krachtigere oplossing gekozen dan moeten de onderstaande items
+dat ook ondersteunen.
+
+\begin{itemize}
+	\item Resolutie camera, zie sectie \ref{sec:cam};
+	\item RAM geheugen FPGA, zie sectie \ref{sec:RAM};
+	\item Camera interface, zie sectie \ref{sec:caminter};
+	\item Microcontroller interface, zie sectie \ref{sec:ucinter};
+	\item Ontwikkelingsbord, zie sectie \ref{doc:ontwb};
+\end{itemize}
+
+\section{Resolutie camera}
+\label{sec:cam}
+De resolutie van de camera bepaald hoe goed een object gedetecteerd
+kan worden. Ook bepaald deze hoe snel het systeem 1 frame kan verwerken.
+Om niet te snelle hardware nodig te hebben om een acceptabele frame-rate
+te halen moet de resolutie niet te hoog liggen. HD of hoger is bijvoorbeeld
+helemaal niet nodig.
+Als minimale resolutie wordt een $640*480$ geaccepteerd.
+
+\section{RAM calculatie}
+\label{sec:RAM}	
+Met de onderstaande calculatie is de minimaal benodigde ruimte te berekenen.
+
+\begin{equation}
+C = A*D*R*X*Y
+\end{equation}
+
+Waarbij $Y$ staat voor het aantal pixels dat 1 afbeelding hoog is;
+$X$ het aantal pixels dat 1 afbeelding breed is;
+$R$ het aantal bytes per kleur van 1 pixel;
+$D$ het aantal kleuren in 1 pixel;
+$A$ het aantal plaatjes data het RAM moet kunnen opslaan;	
+en $C$ staat voor de hoeveelheid ruimte in bytes.
+
+Om een goede inschatting te kunnen maken is het aan te raden om uit
+te gaan van 4 plaatjes in 8-bit RGB formaat. Op deze manier moet er
+altijd voldoende ruimte zijn.
+
+\section{Camera interface}
+\label{sec:caminter}
+Een camera interface heeft als enige eis dat hij zo eenvoudig mogelijk
+dient te zijn. Dit i.v.m. de implementatie tijd. De focus van het project
+ligt op de vision bewerking, niet op de acquisitie van beelden.
+Denk bij interfaces aan I$^2$C, SPI en/of parallele interfaces. Houdt
+hierbij rekening met het benodigde aantal I/O's. Deze moeten wel voldoende
+aanwezig zijn op het ontwikkelingsbord.
+
+\section{Microcontroller interface}
+\label{sec:ucinter}
+Als microcontroller interface is het verstandig om gebruik te maken van
+een zogenaamde FSMC-bus. Althans, zo heet dit bij ST microcontrollers.
+Texas instruments heeft ook een dergelijk concept, de EMIF-bus.
+Bij NXP is dat dan weer EMC-bus.
+
+De FSMC-bus maakt gebruik van een 16-bit data bus en daarbij ondersteunt
+hij 26-bits adressen. Dat is een totaal van maximaal $2*2^26 = 134217728 bytes$.
+
+Daarnaast maakt de bus gebruik van enkele bedieningslijnen, doorgaans 4 stuks.
+
+Bij een $640x480 pixel$ camera is het nodig om rekening te houden met $\log _2 \left(\frac{640 \times 480 \times 3}{2} \right) \equiv 18,813 \approx 19-bits$. Dat betekend dat we voor de FSMC-bus minimaal $ 20 + 16 + 4 \equiv 40  lijnen$ nodig zijn.
+
+\section{Ontwikkelingsbord}
+\label{doc:ontwb}
+Het juiste FPGA ontwikkelingsbord wordt gekozen op basis van de onderstaande criteria.
+
+\begin{itemize}
+	\item Bij voorkeur een ontwikkelingskit voor camera applicaties;
+	\item FPGA bord moet het aantal I/O's kunnen aansturen;
+	\item er dient voldoende RAM aanwezig te zijn, zoals gezegd in sectie \ref{sec:RAM};
+	\item de FPGA dient genoeg LUTs en flip-flops te hebben;
+	\item FPGA moet voldoende snelheid hebben om een frame te verwerken;
+\end{itemize}
+De laatste 2 punten zijn wat vaag. Daarvoor geld, des te hoger, des te beter!
