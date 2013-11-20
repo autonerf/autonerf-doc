@@ -22,6 +22,8 @@ Ze zijn geordend op basis van type.
 % Aantal I/O's FPGA
 % Kosten
 
+\section{Vision ontwikkelingskits}
+
 \begin{tabular}{| p{4.85cm} | p{7cm} | p{1cm} |}
 	\hline
 	\multicolumn{3}{| l |}{
@@ -56,6 +58,39 @@ Ze zijn geordend op basis van type.
 \\\\
 Dit is een complete kit voor het ontwikkelen van een industrieel vision systeem. Waarschijnlijk wat overdreven voor de applicatie maar voldoet zeker!
 \\\\
+
+\pagebreak
+
+\section{Camera modules}
+
+\begin{tabular}{| p{4.85cm} | p{7cm} | p{1cm} |}
+	\hline
+	\multicolumn{3}{| l |}{
+		\textbf{
+			\href{http://nl.farnell.com/jsp/displayProduct.jsp?sku=2353309&CMP=KNC-GNL-FNL-GEN-SKU-MDC&mckv=sGgaLuyg5|pcrid|36518223967|kword|raspberry\%20pi\%20cam|match|p|plid|}{Raspberry Pi camera module}
+		}
+	} \\ 
+	\hline
+		Type & Camera module & \space \\ 
+	\hline
+		Type camera & Omnivision OV5647 & sensor \\
+	\hline
+		Maximale resolultie camera & 2592 x 1944 & pixels \\
+	\hline
+		Configuratie interface camera & SCCB & \space \\
+	\hline	
+		Communicatie interface camera & DVP & \space \\
+	\hline
+		Kosten & \href{http://nl.farnell.com/jsp/displayProduct.jsp?sku=2353309&CMP=KNC-GNL-FNL-GEN-SKU-MDC&mckv=sGgaLuyg5|pcrid|36518223967|kword|raspberry\%20pi\%20cam|match|p|plid|}{42,99} & \euro \\
+	\hline
+\end{tabular}
+\\\\
+Een camera met hoge resolutie. Deze kan ook terug gehaald worden naar VGA ($640x480$) resolutie. Daarnaast is hij  compatible met Raspberry Pi, dus mocht de acquisitie niet lukken met de FPGA dan kunnen we dat nog aan de Raspberry Pi geven.
+Een groot nadeel is dat er niet snel veel informatie over de bussen te vinden is. SCCB is een standaard (I$^2$C-bus gebaseerde) communicatie bus die door OmniVision is ontwikkeld. Zodoende werken vrijwel alle camera's er mee. We kunnen daarom eenvoudig een andere camera pakken met bijvoorbeeld een lagere resolutie om de camera beter te laten presteren in situaties met weinig licht.
+\\\\
+
+\pagebreak
+\section{FPGA ontwikkelingsborden}
 
 \begin{tabular}{| p{4.85cm} | p{7cm} | p{1cm} |}
 	\hline
@@ -138,3 +173,29 @@ Bord is matig geschikt. Beschikt over een goede kloksnelheid, veel intern RAM. G
 \\\\
 Bord is prima geschikt. Helaas heeft deze weinig intern RAM, dat is op te lossen middels het 16Mbyte externe RAM. Het bord is goed gedocumenteerd en heeft voldoende I/O's. Helaas is het bord niet direct beschikbaar.
 \\\\
+
+\begin{tabular}{| p{4.85cm} | p{7cm} | p{1cm} |}
+	\hline
+	\multicolumn{3}{| l |}{
+		\textbf{
+			\href{http://www.digilentinc.com/Products/Detail.cfm?NavPath=2,400,836&Prod=ATLYS}{Digilent Atlys}
+		}
+	} \\ 
+	\hline
+		Type & FPGA ontwikkelingsbord & \space \\ 
+	\hline
+		Type FPGA & Xilinx XC6SLX45 & \space \\
+	\hline
+		FPGA LUTs & 27.288 & \space \\
+	\hline
+		FPGA RAM & 2,100 & Mbyte \\
+	\hline
+		FGPA snelheid & 100 & MHz \\
+	\hline
+		Aantal I/O's & 8 (headers) + 40 (uitbreidings connector) & \space \\
+	\hline
+		Kosten & \href{http://www.digilentinc.com/Products/Detail.cfm?NavPath=2,400,836&Prod=ATLYS}{219,00} & \$ \\
+	\hline
+\end{tabular}
+\\\\
+Dit bord is prima geschikt wegens zijn grote interne geheugen en redelijke hoeveelheid I/O's. Helaas geld ook voor dit bord, het is niet direct beschikbaar.
