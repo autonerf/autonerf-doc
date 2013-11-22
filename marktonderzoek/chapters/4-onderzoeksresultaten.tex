@@ -1,9 +1,9 @@
-\chapter{Conclusie}
+\chapter{Onderzoeksresultaten}
 
 Uit het onderzoek is gebleken dat vooral het aanbod van camera modules erg klein
 is. De enige bruikbare module is de Raspberry Pi camera module die gebruik maakt
 van een gepatenteerd protocol (Camera-Serial-Interface, of CSI) ontwikkeld door
-MIPI Om toegang te krijgen tot de specificaties van dit protocol is het nodig
+MIPI. Om toegang te krijgen tot de specificaties van dit protocol is het nodig
 lidmaadschap tot het MIPI aan te vragen wat 4000 dollar per jaar
 kost\footnote{http://mipi.org/join-mipi/membership-model}. Dit is voor een
 eenmalig project niet te betalen dus de optie om alleen de Raspberry Pi camera
@@ -16,15 +16,18 @@ af te stappen van een digitale camera module en gebruik te maken van een camera
 module die een analoog signaal (bijvoorbeeld PAL of NTSC) uitstuurt. Door
 bijvoorbeeld een MAX9526\footnote{http://datasheets.maxim-ic.com/en/ds/MAX9526.pdf}
 te gebruiken kan dit signaal gedigitaliseerd worden naar een signaal wat de FPGA
-vervolgens kan uitlezen.
+vervolgens kan uitlezen. Een bijkomend voordeel is dat een PAL camera goed 
+verkrijgbaar is en er dus veel keus is tussen kwaliteit (lichtgevoeligheid, etc.).
 
-Verder is het mogelijk om een USB stack te implementeren of een FPGA, echter is
+Verder is het mogelijk om een USB stack te implementeren op een FPGA, echter is
 dit geen wenselijke keuze omdat er dan veel werk gaat zitten in het correct
 implementeren van deze stack in plaats van beeldverwerking (waar dit project om
-zou moeten draaien).
+zou moeten draaien). Daarnaast is het nog onbekend of de camera ook 
+geïnitialiseerd dient te worden. Als dat het geval is, dan is het nagenoeg 
+onmogelijk om dit te implementeren in de FPGA.
 
 Nog een andere optie is het geheel weglaten van de FPGA en een Raspberry Pi
-gebruiken met de bijbehoorende camera module. Een van de dingen waar dan wel
+gebruiken met de bijbehorende camera module. Een van de dingen waar dan wel
 rekening mee moet worden gehouden is het feit dat de Raspberry Pi niet snel is
 wat problemen kan veroorzaken.
 
