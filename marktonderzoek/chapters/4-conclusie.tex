@@ -1,0 +1,33 @@
+\chapter{Conclusie}
+
+Uit het onderzoek is gebleken dat vooral het aanbod van camera modules erg klein
+is. De enige bruikbare module is de Raspberry Pi camera module die gebruik maakt
+van een gepatenteerd protocol (Camera-Serial-Interface, of CSI) ontwikkeld door
+MIPI Om toegang te krijgen tot de specificaties van dit protocol is het nodig
+lidmaadschap tot het MIPI aan te vragen wat 4000 dollar per jaar
+kost\footnote{http://mipi.org/join-mipi/membership-model}. Dit is voor een
+eenmalig project niet te betalen dus de optie om alleen de Raspberry Pi camera
+module te gebruiken in combinatie met een FPGA valt af.
+
+Wat wel een optie is, is het gebruiken van een Raspberry Pi als acquisitie in
+combinatie met een bestaand of zelf ontwikkeld protocol om te communiceren met
+de FPGA die in dit model zal dienen als filter. Een andere optie is om geheel
+af te stappen van een digitale camera module en gebruik te maken van een camera
+module die een analoog signaal (bijvoorbeeld PAL of NTSC) uitstuurt. Door
+bijvoorbeeld een MAX9526\footnote{http://datasheets.maxim-ic.com/en/ds/MAX9526.pdf}
+te gebruiken kan dit signaal gedigitaliseerd worden naar een signaal wat de FPGA
+vervolgens kan uitlezen.
+
+Verder is het mogelijk om een USB stack te implementeren of een FPGA, echter is
+dit geen wenselijke keuze omdat er dan veel werk gaat zitten in het correct
+implementeren van deze stack in plaats van beeldverwerking (waar dit project om
+zou moeten draaien).
+
+Nog een andere optie is het geheel weglaten van de FPGA en een Raspberry Pi
+gebruiken met de bijbehoorende camera module. Een van de dingen waar dan wel
+rekening mee moet worden gehouden is het feit dat de Raspberry Pi niet snel is
+wat problemen kan veroorzaken.
+
+Verder zou het ook een optie kunnen zijn om het CSI protocol te \emph{reverse
+engineeren} om er gebruik van te maken, ook dit is niet wenselijk, omdat hier
+veel tijd in zou gaan zitten.
