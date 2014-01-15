@@ -6,3 +6,48 @@
 % deelfuncties en onderdelen, toestandsdiagrammen van (belangrijkste of meest
 % complexe) functies, gekozen implementatie van datastructuren, eventueel
 % pseudo-code; hoe worden de functies en onderdelen gerealiseerd
+
+\section{Hardware}
+\label{sec:hardware}
+
+\subsection{Opzet}
+\label{sub:opzet}
+Het initiële ontwerp was een combinatie systeem van FPGA en een CPU. Door in 
+de FPGA operatoren te implementeren moest er een hoge frame-rate gehaald kunnen 
+worden. Mede door de communicatie complexiteit is er afgezien van een FPGA 
+systeem en is er gekozen voor een snelle processor met Linux. Zo kan er gemakkelijk 
+gebruik worden gemaakt van een USB camera.
+
+\subsection{Ontwikkelingsbord}
+\label{sub:devboard}
+De markt voor Linux gebaseerde ontwikkelingsbordjes is redelijk uitgebreid. Voor 
+dit project zijn er echter een aantal eisen.
+
+\begin{itemize}
+	\item 2 PWM uitgangen t.b.v. de pan en tilt servo's
+	\item minimaal 11 GPIO uitgangen t.b.v. 10 darts + veiligheid
+	\item zo hoog mogelijke kloksnelheid t.b.v. frame-processing
+	\item genoeg geheugen voor minimaal 2 640*480 RGB frames
+	\item een community t.b.v. resources
+	\item het moet betaalbaar blijven
+\end{itemize}
+
+Gezien het erg belangrijk is om voldoende informatie te kunnen vinden over aansturing 
+van onder andere hardware en PWM pinnen is er besloten om een BeagleBone Black te 
+nemen. Met 6 PWM kanalen, 69 GPIO's, 512Mb DDR3 RAM en een 1GHz CPU is dit een prima 
+apparaat om te gebruiken voor dit project.
+
+\subsection{Cape}
+\label{sub:cape}
+Om de veiligheid van personen om het systeem te kunnen garanderen wordt er wederom 
+gebruik gemaakt van een hardware-matig beveiligingssysteem. Bestaand uit een 
+vereenvoudigde versie van de PC + Arduino combinatie.
+De interface zal bestaan uit een 3-tal LEDs en een 2-tal knoppen. De 3 LEDs zullen 
+de gebruiker laten weten of dat de applicatie aan staat of niet, of dat het apparaat 
+kan schieten of niet en of dat er herladen moet worden.
+Met de 2 knoppen kan het schieten en draaien hardware-matig geactiveerd en gedeactiveerd 
+worden. Daarnaast zit er een knop op om aan te geven dat het systeem herladen is.
+De interface dient als cape op de BeagleBone Black gemonteerd te worden. Verder zal de 
+cape de nodige voedingsspanningen voorzien aan de kleppen, servo's en de BeagleBone Black 
+zelf. Door de applicatie automatisch te laten starten op de BeagleBone Black is het doel 
+een plug-and-play systeem te maken.
