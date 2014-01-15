@@ -23,13 +23,15 @@ I/O aansturing.
 \label{sub:contstr}
 Om een betrouwbaardere threshold te kunnen maken gebruiken we een contrast stretch 
 operatie. Deze functie bepaald de laagste en hoogste waarde in het beeld en smeert 
-deze uit over het complete grijswaarde gebied. Door een vermenigvuldigingsfactor te 
-bepalen is het eenvoudig om dit te bereiken. De vermenigvuldigingsfactor zal 
-uiteraard > 1 moeten zijn, maar kan ook een komma getal zijn. Float operaties zijn 
-dus essentieel en daarbij is een FPU (Floating Point Unit) erg handig. Om de 
-zware calculaties te verminderen wordt er gebruik gemaakt van een LUT (Look Up Table) 
-die hetzelfde bereik heeft als de grijswaarde. Gezien er gebruik wordt gemaakt van 
-een grijswaarde bereik van 256 moet de calculatie 256x worden uitgevoerd.
+deze uit over het complete grijswaarde gebied.
+
+Door een vermenigvuldigingsfactor te bepalen is het eenvoudig om dit te bereiken. De vermenigvuldigingsfactor zal uiteraard > 1 moeten zijn, maar kan ook een komma getal 
+zijn. Float operaties zijn dus essentieel en daarbij is een FPU (Floating Point Unit) 
+erg handig. Om de zware calculaties te verminderen wordt er gebruik gemaakt van een 
+LUT (Look Up Table) die hetzelfde bereik heeft als de grijswaarde. Gezien er gebruik 
+wordt gemaakt van een grijswaarde bereik van 256 moet de calculatie 256x worden 
+uitgevoerd.
+
 De verhouding wordt als volgt bepaald:
 $R = \frac{D}{Max - Min}$
 Waarbij R de vermenigvuldigingsfactor is;
@@ -44,5 +46,425 @@ if value > D then value = D
 lut[i] = value;
 %<-- End pseudo code!
 
+Tot slot kan er eenvoudig vanuit de huidige waarde in de LUT de nieuwe pixel waarde 
+worden opgevraagd. Dit wordt over het hele beeld gedaan om een verbeterd contrast te 
+krijgen.
+
 \subsection{Threshold}
 \label{sub:threshold}
+Als image threshold wordt er gebruik gemaakt van de ISO data variant. Dit is een 
+automatische threshold die de juiste waarde bepaald vanuit het histogram. Hierbij 
+wordt uitgegaan van een 2-piek verdeling tussen de achtergrond en object pixels.
+Hierbij wordt gezocht naar "vally" van het histogram.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=1]{figures/histogram.png}
+    \end{center}
+    \caption{Een 2-piek beeld verdeeld histogram}
+    \label{fig:histogram}
+\end{figure}
+
+Vervolgens zal de functie van alle pixels boven/onder zijn threshold een 1 maken 
+en van alle pixels onder/boven zijn threshold een 0 maken.
+
+De ISO data threshold gebruikt de 1ste pixel waarde en de som van alle pixels om 
+de threshold waarden te bepalen.
+Wiskundig kan dat als volgt uitgedrukt worden:
+$Th = s + \frac{\sum\limits_{x=0}^{x_max-1} \sum\limits_{y=0}^{y_max-1} f(x, y)}{x_max x y_max}  $
+Waarbij $Th$ de threshold functie is;
+$s$ de start waarde van de pixels.
+
+Door de som van alle pixels tegelijk te bepalen met het histogram is het mogelijk 
+om een threshold te volbrengen na 2x het hele plaatje te hebben gescand.
+
+In pseudo code zal dan de threshold waarde als volgt bepaald worden:
+%<-- Pseudo code
+for(i = 0; histogram[i] > 0; i++){
+    i = i; //Do nothing
+}
+
+Th = i + (som / imageSize);
+%<-- End pseudo code
+
+Daarna  kan er eenvoudig met een if-statement een threshold worden gedaan:
+%<-- Pseudo code
+if(srcData >= min && srcData <= max){
+    srcData = 1;
+} else {
+    srcData = 0;
+}
+%<-- End pseudo code
+
+Gezien x en y waarden niet belangrijk zijn kan er het snelst door het plaatje 
+gegaan worden middels een pointer.
+
+\subsection{Remove border blobs}
+\label{sub:rembb}
+Op het moment dat er een beeld binnen komt beschouwen we rand objecten als 
+nutteloos. Simpelweg omdat het niet zeker is wat het voor object is. Daarom 
+wordt er gebruik gemaakt van de "remove border blobs" operatie.
+
+Er komt een binair plaatje binnen bestaande uit 1-en en 0-en. Door de 1-en 
+aan de rand van het plaatje te markeren met een ander nummer kan er een 
+border blob geïdentificeerd worden. 
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/border_blob_step1.png}
+    \end{center}
+    \caption{Rand blobs markeren}
+    \label{fig:bbstep1}
+\end{figure}
+
+Omdat enkel de rand gescand hoeft te worden kan deze functie redelijk snel 
+uitgevoerd worden.
+%<-- pseudo code
+for(w = width; w >= 0; w--){
+	dst->data[0][w]      = dst->data[0][w] * 2;
+	dst->data[height][w] = dst->data[height][w] * 2;
+}
+%<-- End pseudo code
+Dit kan uiteraard ook eenvoudig voor de hoogte worden gedaan.
+
+Het voltooien van het markeren is mogelijk door, als er een 1 gezien wordt, 
+te kijken naar de buren van deze pixel. Als dat een 2 is, dan mag deze pixel 
+ook gemarkeerd worden als een 2 enzovoort. Dit markeren kan van rechts-onder 
+naar links-boven en van links-boven naar rechts-onder gedaan worden om het 
+aantal iteraties te verminderen. Door iedere keer na een markeer ronde te 
+controleren of er een 1-2 verbinding bij x connected is, kan er bepaald worden 
+of er nog een keer over het plaatje gegaan moet worden om de overige pixels te 
+markeren.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/border_blob_step2.png}
+    \end{center}
+    \caption{Blijf scannen en markeren tot alles is gemarkeerd}
+    \label{fig:bbstep2}
+\end{figure}
+
+De scan van links boven -> rechts onder en van rechts onder -> rechts boven 
+kan in 1 loop uitgevoerd worden.
+%<-- Pseudo code
+//Lower right -> top left
+if(img[i] == 1){
+    if(iNeighbourCount(img, w, h, 2, connected) > 0){
+        img[i] = 2;
+    }
+}
+
+//Top left -> lower right
+if(img[size - i] == 1){
+    if(iNeighbourCount(img, (width - w), (height - h), 2, connected) > 0){
+        img[size - i] = 2;
+    }
+}
+%<-- End pseudo code
+
+Tot slot kan er dan met een functie alle pixels met een 2 markeren als een 0.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/border_blob_step3.png}
+    \end{center}
+    \caption{Markeer alle 2-en als 0-en}
+    \label{fig:bbstep3}
+\end{figure}
+
+%<-- Pseudo code
+if(img[i] == 2){
+    img[i] = 0;
+}
+%<-- End pseudo code
+
+\subsection{Fill holes}
+\label{sub:fillholes}
+Om betrouwbaar een object te kunnen identificeren vullen we de gaten op in de 
+objecten. Deze gaten kunnen ontstaan zijn bij de RGB filtering door schittering 
+op het object.
+
+Het proces om de gaten te vullen is relatief eenvoudig. Door de achtergrond te 
+markeren en vervolgens alle niet gemarkeerde pixels op 1 te zetten is het vullen 
+voltooid.
+
+Om een start te maken voor het markeren van de achtergrond is het mogelijk om 
+alle rand pixels die 0 zijn te markeren als, bijvoorbeeld, een 2. Dit zal op een 
+zelfde wijze gaan als bij de remove border blobs operator.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/fill_holes_step1.png}
+    \end{center}
+    \caption{Achtergrond rand markeren.}
+    \label{fig:fhstep1}
+\end{figure}
+
+Omdat enkel de rand gescand hoeft te worden kan deze functie redelijk snel 
+uitgevoerd worden.
+%<-- pseudo code
+for(w = width; w >= 0; w--){
+	if(imgArr[0][w] == 0){
+        imgArr[0][w] = 2;
+    }
+    if(imgArr[height][w] == 0){
+        imgArr[height][w] = 2;
+    }
+}
+%<-- End pseudo code
+Dit kan uiteraard ook eenvoudig voor de hoogte worden gedaan.
+
+Het voltooien van de pixel scan wordt op dezelfde manier gedaan als beschreven 
+bij de remove border blobs operatie. Vanuit alle gemarkeerde pixels wordt er 
+voortborduurt tot het hele plaatje is gemarkeerd. In dit geval mag er dus geen 
+2-0 bij x connected overgang meer zijn.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/fill_holes_step2.png}
+    \end{center}
+    \caption{Achtergrond rand markeren.}
+    \label{fig:fhstep2}
+\end{figure}
+
+Tot slot moeten alle 0-en gemarkeerd worden als een 1. Daarna mogen de 2-en 
+weer gemarkeerd worden als een 0. Helaas gaat dit niet in 1 stap omdat anders 
+het hele plaatje 1-en krijgt.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/fill_holes_step3.png}
+    \end{center}
+    \caption{Blobs inkleuren.}
+    \label{fig:fhstep3}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/fill_holes_step4.png}
+    \end{center}
+    \caption{Achtergrond weer 0 maken.}
+    \label{fig:fhstep4}
+\end{figure}
+
+\subsection{Label blobs}
+\label{sec:labelblobs}
+Om het benodigde object te detecteren is het nodig om ieder object te 
+identificeren. De makkelijkste manier om dit te doen is door ieder object een 
+nummer te geven. Zo kunnen van alle nummers de eigenschappen bepaald worden. 
+
+Deze operator is het meest complex en heeft dus ook de meeste tijd nodig. 
+Gelukkig is er voldoende ruimte voor snelheidsverbetering.
+
+Door er voor te zorgen dat alle blobs een maximale waarde hebben kan er voorkomen 
+worden dat er nummer conflicten optreden. Daarvoor is het dus belangrijk eerst 
+alle pixels op 255 te zetten.
+
+Vervolgens moet iedere pixel van 255 een nummer krijgen. Door het plaatje van 
+links boven -> rechts onder te doorlopen worden de blobs gelabeld. Door bij 
+iedere pixel te controleren of ze al een gelabelde pixel buur-pixel hebben 
+probeert het programma te voorkomen dat 1 blob 2 labels krijgt. Helaas is dit 
+niet helemaal te voorkomen. Kijk bijvoorbeeld naar onderstaand plaatje.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/label_blobs_step1.png}
+    \end{center}
+    \caption{Verkeerd gelabelde blobs na de 1ste iteratie.}
+    \label{fig:lbstep1}
+\end{figure}
+
+Het eerste label proces redelijk complex gezien er gekeken moet worden of een 
+blob al gelabeld is met een lager nummer ondanks dat al meerdere blobs gelabeld 
+zijn.
+%<-- Pseudo code
+//If this pixel has to be labled
+if(imgArr[h][w] == 255){
+  blobDetected = 1;
+  if(iNeighbourCount(img, w, h, blobCount, connected) > 0){ //If this blob is labeled
+      imgArr[h][w] = blobCount;
+  } else { //This blob might be labeled with a lower number or is a new blob
+      for(j = blobCount; j != 0; j--){ //Check what number the neighbour might be
+          if(iNeighbourCount(img, w, h, j, connected) > 0){
+              foundFlag = 1;
+              break;
+          }
+      }
+
+      if(foundFlag){ //If this pixel is part of a labeled blob, set the right number
+          imgArr[h][w] = j;
+          foundFlag = 0;
+      } else { //Otherwise, label this as a new blob
+          blobCount += 1;
+          imgArr[h][w] = blobCount;
+      }
+
+  }
+}
+%<-- End pseudo code
+blobDetected wordt gebruikt als controle of er überhaupt wel een blob in het 
+plaatje is. Zo niet, dan kan er na deze iteratie ook gestopt worden met de 
+functie.
+
+Vervolgens dient de dubbel gelabelde 1 label te krijgen. Dit is te bereiken 
+door te beginnen in de rechter onder hoek en zo naar links boven te werken. 
+Door iedere keer te kijken naar de pixels achter en onder het huidige pixel 
+kan de laagste waarde van de pixel worden bepaald. Het is uiteraard wel 
+belangrijk om rekening te houden met het x connected verhaal.
+Daarna wordt hetzelfde gedaan alleen dan van de linker boven hoek naar de 
+rechter onder hoek. En tot slot wordt er gecontroleerd of alle blobs nu 
+maar 1 label hebben, zo niet, dan herhaalt het proces zich nog eens.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/label_blobs_step2.png}
+    \end{center}
+    \caption{Uniform gelabelde blobs na (verschillende) iteraties.}
+    \label{fig:lbstep2}
+\end{figure}
+
+Nu zijn er alleen gaten in de nummering. Dit kan opgelost worden door nog 
+één keer vaker over het plaatje te gaan en de blobs te labelen van links 
+boven naar rechts onder. Door een teller bij te houden kunnen de correct 
+gelabelde blobs automatisch worden genegeerd.
+
+\subsection{Blob analyse}
+\label{sub:blobanalyse}
+Na het labelen kunnen de gevonden blobs/objecten worden geanalyseerd. Door 
+te controleren op massa/grootte van de blob bepaald het systeem waar het op 
+moet richten. Hierbij wordt de blob met de grootste massa genomen.
+
+Eerst wordt er bij iedere blob bekeken wat de massa is van de blob.
+%<-- Pseudo code
+//First clear the blob_mass registers
+for(i = MAX_BLOB_COUNT; i > 0; i--){
+    blob_mass[i] = 0;
+}
+
+for(i = (FRAME_SIZE - 1); i >= 0; i--){
+    if(img[i] > 0){
+        blob_mass[img[i]]++;
+    }
+}
+%<-- End pseudo code
+
+Dan wordt de grootste blob bepaald.
+%<-- Pseudo code
+largest_blob = 0;
+
+for(i = blobCount; i > 0; i--){
+    if(blob_mass[i] > largest_blob){
+        largest_blob = blob_mass[i];
+    }
+}
+%<-- End pseudo code
+
+Tot slot moeten de coördinaten van het middelpunt bepaald worden.
+%<-- Pseudo code
+if(imgArr[h][w] == largest_blob){
+    //Calculate height
+    if(h < min_height){
+        min_height = h;
+    }
+    if(h > max_height){
+        max_height = h;
+    }
+    blob_pos_x = (max_height - min_height) / 2;
+
+    //Calculate width
+    if(w < min_width){
+        min_width = w;
+    }
+    if(w > max_width){
+        max_width = w;
+    }
+    blob_pos_y = (max_width - min_width) / 2;
+}
+%<-- End pseudo code
+
+Met deze informatie kan de correctie bepaald worden.
+
+\subsection{Calculate offset}
+\label{sub:calcoffset}
+% To you Ramon
+
+
+\subsection{Pan & Tilt controller}
+\label{sub:panTiltContr}
+De pan & tilt controller zorgt er voor dat de servo.c file met de juiste outputs 
+wordt bestuurd met de juiste waarden. De servo.c file stuurt op zijn beurt de pwm.c 
+file aan met de juiste frequentie en Duty-Cycles (zet de hoek om in de juiste 
+Duty-Cycle). De pwm.c file zorgt er voor dat alle data naar de juiste file wordt 
+gestuurd, outputs niet dubbel geconfigureerd zijn etc..
+
+Om een PWM signaal te genereren dient de PWM module geactiveerd te worden. Hoe 
+dit kan in Angström staat hieronder. Het voorbeeld is voor pin P8.13.
+%<-- Command code
+echo am33xx_pwm > /sys/devices/bone_capemgr.8/slots
+echo bone_pwm_P8_13 > /sys/devices/bone_capemgr.8/slots
+echo 20000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/period
+echo 10000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/duty
+%<-- End command code
+Bron: http://www.phys-x.org/rbots/index.php?option=com_content&view=article&id=106:lesson-3-beaglebone-black-pwm&catid=46:beaglebone-black&Itemid=81
+
+Zorg er wel voor dat de pinmode op PWM ingesteld staat. Dit kan worden gedaan 
+middels een overlay. Meer hier over in GPIO controller.
+
+De am33xx_pwm en bone_pwm_P8_13 kunnen standaard in slots worden gezet. Dit kan 
+bereikt worden door in uEnv.txt het volgende te zetten:
+\emph{capemgr.enable_partno=am33xx_pwm,bone_pwm_P8_13}
+uEnv.txt bevind zich op de virtuele SD kaart die automatisch verbind met de PC 
+tijdens het booten.
+
+De period en duty tijd worden ingesteld via de pwm.c file. Daarnaast bouwt deze op 
+basis van het GPIO nummer automatisch de juiste directory op. Het enige wat 
+soms verandert is het suffix nummer van de directory (P8_13.xx/). Dit kan echter 
+aangepast worden in de pwm.c file.
+
+\subsection{GPIO controller}
+\label{sub:gpiocontr}
+Om GPIO's aan te sturen op de Beagle Bone Black dient de modus ingesteld te worden 
+samen met PULL-UP/PULL-DOWN weerstanden. Daarnaast dienen deze na iedere re-boot 
+weer ge-exporteert te worden om vervolgens te bepalen of het een input/output moet 
+zijn en om de waarde van de GPIO te wijzigen.
+
+Het instellen van de pin modus en PULL-UP en PULL-DOWN weerstanden dient gedaan te 
+worden in de overlay. Dit is een .dts file waarin het volgende staat.
+%<-- Command code
+/* <Pin offset adres> <Value> </* pin comment */>*/
+          0x0c0        0x07    /* 78: OUTPUT MODE7 + PULL-DOWN = Missile 1     */
+%<-- End command code
+De waarden en pin offsets kunnen uit de tabellen in bijlage x gehaald worden. Hier 
+moet dus ook een PWM pin ingesteld worden indien deze nodig is!
+
+Vervolgens dient de .dts file gecompileerd te worden naar .dtbo. Hieronder is het 
+commando te vinden er vanuit gaande dat de .dts file DM-GPIO-Test.dts heet.
+%<-- Command code
+dtc -O dtb -o DM-GPIO-Test-00A0.dtbo -b 0 -@ DM-GPIO-Test.dts
+%<-- End command code
+Deze .dtbo file dient vervolgens gekopieerd te worden naar de /lib/fimware folder. 
+Om deze te activeren is er een re-boot nodig en vervolgens het volgende commando.
+%<-- Command code
+echo DM-GPIO-Test > /sys/devices/bone_capemgr.8/slots
+%<-- End command code
+Uiteraard kan ook dit automatisch bij het opstarten gebeuren door deze in de 
+uEnv.txt file te zetten. Bij Pan & Tilt controller staat hoe dit moet.
+
+Om een GPIO te kunnen gebruiken dienen de volgende commando's uitgevoerd te worden.
+Deze commmando's worden dan ook afgehandeld door de gpio.c file.
+%<-- Command code
+echo 60 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio60/direction
+echo 1 > /sys/class/gpio/gpio60/value
+%<-- End command code
+Dit maakt de uitgang op GPIO 60 hoog. Laag is natuurlijk eenvoudig te realiseren 
+door 0 naar value te schrijven.
+Het gebruik maken van een input is eenvoudig door "in" naar direction te schrijven. 
+Dan is de waarde uit te lezen in value.
+
+Als het programma afsluit is het netjes om de GPIO's ook weer te "unexporten".
+%<-- Command code
+echo 60 > /sys/class/gpio/unexport
+%<-- End command code
+
+Bron: http://derekmolloy.ie/beaglebone/beaglebone-gpio-programming-on-arm-embedded-linux/
