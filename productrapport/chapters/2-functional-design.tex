@@ -1,5 +1,63 @@
 \chapter{Functioneel Ontwerp}
+\label{chap:functional}
 
 % systeembeschrijving op het hoogste niveau; wat moet het systeem doen,
 % niet hoe; hoe ziet de gebruiker het systeem; systeem opdelen in
 % functionele blokken en definiëren van de interfaces daartussen
+
+In dit hoofdstuk is de functionele specificatie van het \autonerf project
+gedefinieërd. De functionele eisen van het systeem worden beschreven en de
+functionele architectuur van het systeem wordt besproken.
+
+\section{Specificatie}
+
+Het te ontwikkelen systeem moet voldoen aan de volgende, functionele, eisen:
+
+\begin{enumerate}
+    \item Het systeem moet plug-and-play zijn, er moet dus geen aparte computer
+        (PC of Mac) nodig zijn om het systeem aan te sturen;
+    \item Het systeem moet \emph{markers} herkennen en daar op richten en een
+        Nerfdart op af vuren;
+    \item Het systeem moet, om markers te herkennen, gebruik maken van real-time
+        camera beelden;
+    \item En het systeem moet in staat zijn om op bewegende doelwitten te vuren.
+\end{enumerate}
+
+\section{Architectuur}
+
+De omschrijving van de architectuur van het \autonerf systeem begint bij het
+globale input-process-output (IPO) schema (figuur \ref{fig:ipo-global}). Dit
+schema toont de input van het systeem (de real-time camera beelden) en de output
+van het systeem (het richten van de Nerfgun en het eventueel vuren van een dart).
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/ipo/global.tex}
+    \end{center}
+    \caption{Het globale input-process-output schema van het \autonerf systeem.}
+    \label{fig:ipo-global}
+\end{figure}
+
+\pagebreak
+
+Om de taak volledig uit te kunnen vuren bestaat het systeem uit een aantal
+verschillende logische blokken (figuur \ref{fig:ipo-main}).
+
+\begin{enumerate}
+    \item De \texttt{reader} is verantwoordelijk is voor de acquisitie
+        van frames vanuit de real-time feed van camera beelden;
+    \item De \texttt{detector} is verantwoordelijk voor het detecteren van
+        markers in een frame van de camera feed;
+    \item De \texttt{localizer} is verantwoordelijk voor het bepalen van de
+        positie en huidige afwijking van een gedeteceerde marker;
+    \item De \texttt{controller} is verantwoordelijk voor het aansturen van
+        de Nerfgun en het vuren van darts.
+\end{enumerate}
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/ipo/main.tex}
+    \end{center}
+    \caption{De verschillende logische blokken in het \autonerf systeem.}
+    \label{fig:ipo-main}
+\end{figure}

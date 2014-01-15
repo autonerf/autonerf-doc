@@ -1,0 +1,27 @@
+\begin{tikzpicture}[font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=0.5cm,row sep=1cm},
+  source/.style={inner sep=.3cm},
+  process/.style={draw,thick,rounded corners,fill=yellow!10,inner sep=.3cm},
+  sink/.style={source},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={->,>=stealth',shorten >=1pt,thick,font=\sffamily\footnotesize},
+  every node/.style={align=center,font=\footnotesize}]
+
+    \matrix {
+        \node[source](feed){Camera beelden};
+            \& \node[process](read){Reader};
+            \& \node[process](detect){Detector};
+            \& \node[process](local){Localizer};
+            \& \node[process](control){Controller};
+            \& \node[sink](aim){Richten van Nerfgun}; \\
+            \& \& \& \& \& \node[sink](fire){Vuren van darts}; \\
+    };
+
+    \draw[to](feed) -- (read);
+    \draw[to](read) -- (detect);
+    \draw[to](detect) -- (local);
+    \draw[to](local) -- (control);
+    \draw[to](control) -- (aim);
+    \draw[to](control) |- (fire);
+\end{tikzpicture}
