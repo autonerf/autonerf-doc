@@ -4,55 +4,47 @@ Na het labelen kunnen de gevonden blobs/objecten worden geanalyseerd. Door
 te controleren op massa/grootte van de blob bepaald het systeem waar het op
 moet richten. Hierbij wordt de blob met de grootste massa genomen.
 
-Eerst wordt er bij iedere blob bekeken wat de massa is van de blob.
+Eerst wordt er bij iedere blob bekeken wat de massa is van de blob (listing
+\ref{lst:blob-mass}) waarna de grootste blob bepaald kan worden (listing
+\ref{lst:blob-size}). Uiteindelijk moet met deze informatie het middelpunt van
+de grootste blob bepaald worden (listing \ref{lst:blob-centre}).
 
-\begin{cppcode}
-//First clear the blob_mass registers
-for(i = MAX_BLOB_COUNT; i > 0; i--){
-    blob_mass[i] = 0;
-}
-
-for(i = (FRAME_SIZE - 1); i >= 0; i--){
-    if(img[i] > 0){
-        blob_mass[img[i]]++;
+\begin{listing}
+    \begin{minted}{c}
+    for(i = FRAME_SIZE; i > 0; i--){
+        blob_mass[img[(i - 1)]] += (img[(i - 1)] != 0)
     }
-}
-\end{cppcode}
+    \end{minted}
+    \caption{Het berekenen van de blob massas}
+    \label{lst:blob-mass}
+\end{listing}
 
-Dan wordt de grootste blob bepaald.
+\begin{listing}
+    \begin{minted}{c}
+    largest_blob = 0;
 
-\begin{cppcode}
-largest_blob = 0;
-
-for(i = blobCount; i > 0; i--){
-    if(blob_mass[i] > largest_blob){
-        largest_blob = blob_mass[i];
+    for(i = blobCount; i > 0; i--){
+        if(blob_mass[i] > largest_blob){
+            largest_blob = blob_mass[i];
+        }
     }
-}
-\end{cppcode}
+    \end{minted}
+    \caption{Het vinden van de grootste, aanwezige blob}
+    \label{lst:blob-size}
+\end{listing}
 
-Tot slot moeten de coördinaten van het middelpunt bepaald worden.
+\begin{listing}
+    \begin{minted}{c}
+    if(imgArr[h][w] == largest_blob){
+        min_height = (h < min_height) ? h : min_height;
+        max_height = (h > max_height) ? h : max_height;
+        min_width  = (w < min_width)  ? w : min_width;
+        max_width  = (w > max_width)  ? w : max_width;
 
-\begin{cppcode}
-if(imgArr[h][w] == largest_blob){
-    //Calculate height
-    if(h < min_height){
-        min_height = h;
+        blob_pos_x = ((max_height - min_height) / 2) + min_height;
+        blob_pos_y = ((max_width  - min_width)  / 2) + min_width;
     }
-    if(h > max_height){
-        max_height = h;
-    }
-    blob_pos_x = (max_height - min_height) / 2;
-
-    //Calculate width
-    if(w < min_width){
-        min_width = w;
-    }
-    if(w > max_width){
-        max_width = w;
-    }
-    blob_pos_y = (max_width - min_width) / 2;
-}
-\end{cppcode}
-
-Met deze informatie kan de correctie bepaald worden.
+    \end{minted}
+    \caption{Bereken van het centrum van een blob}
+    \label{lst:blob-centre}
+\end{listing}
