@@ -17,7 +17,19 @@ I/O aansturing.
 
 \subsection{Kleuren filter}
 \label{sub:kleurfilt}
-%To you Ramon
+Het filteren van de kleuren moet zo snel mogelijk gebeuren omdat het verwerken van 
+RGB plaatjes erg zwaar is. De kleuren filter zelf is dan ook zo eenvoudig mogelijk 
+geimplementeerd. Hieronder is wiskundig te zien hoe er van een RGB plaatje een 
+grijswaarde wordt gemaakt.
+
+$[gr(x, y)] = r(x, y) - (g(x, y) + b(x, y))$
+
+Waarbij $gr$ de grijswaarde van de pixel is;
+$r$ de rode waarde van de pixel;
+$g$ de groene waarde van de pixel;
+$b$ de blauwe waarde van de pixel;
+$x$ de x positie van de pixel;
+$y$ de y positie van de pixel.
 
 \subsection{Contrast stretch}
 \label{sub:contstr}
@@ -25,7 +37,8 @@ Om een betrouwbaardere threshold te kunnen maken gebruiken we een contrast stret
 operatie. Deze functie bepaald de laagste en hoogste waarde in het beeld en smeert
 deze uit over het complete grijswaarde gebied.
 
-Door een vermenigvuldigingsfactor te bepalen is het eenvoudig om dit te bereiken. De vermenigvuldigingsfactor zal uiteraard > 1 moeten zijn, maar kan ook een komma getal
+Door een vermenigvuldigingsfactor te bepalen is het eenvoudig om dit te bereiken. De 
+vermenigvuldigingsfactor zal uiteraard > 1 moeten zijn, maar kan ook een komma getal
 zijn. Float operaties zijn dus essentieel en daarbij is een FPU (Floating Point Unit)
 erg handig. Om de zware calculaties te verminderen wordt er gebruik gemaakt van een
 LUT (Look Up Table) die hetzelfde bereik heeft als de grijswaarde. Gezien er gebruik
