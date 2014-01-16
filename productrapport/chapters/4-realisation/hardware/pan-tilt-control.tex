@@ -10,7 +10,7 @@ Om een PWM signaal te genereren dient de PWM module geactiveerd te worden. Hoe
 dit kan in Angström staat beschreven in listing \ref{lst:pwm-activation}. Het
 voorbeeld is voor pin P8.13.
 
-\begin{figure}
+\begin{listing}
     \begin{minted}{sh}
     echo am33xx_pwm > /sys/devices/bone_capemgr.8/slots
     echo bone_pwm_P8_13 > /sys/devices/bone_capemgr.8/slots
@@ -19,22 +19,24 @@ voorbeeld is voor pin P8.13.
     \end{minted}
     \caption{Activeren PWM}
     \label{lst:pwm-activation}
-\end{figure}
+\end{listing}
 
 % Bron: http://www.phys-x.org/rbots/index.php?option=com_content&view=article&id=106:lesson-3-beaglebone-black-pwm&catid=46:beaglebone-black&Itemid=81
 
 Belangrijk is dat de pinmode op PWM ingesteld staat. Dit kan worden gedaan
 middels een overlay. Meer hier over in GPIO controller (sectie \ref{sec:gpio}).
 
-De \code{am33xx\_pwm} en \code{bone\_pwm\_P8\_13} kunnen standaard in slots
+De \texttt{am33xx\_pwm} en \texttt{bone\_pwm\_P8\_13} kunnen standaard in slots
 worden gezet. Dit kan bereikt worden door in uEnv.txt het volgende te zetten:
-\\
-\texttt{capemgr.enable\_partno=am33xx\_pwm,bone\_pwm\_P8\_13}
-\\
-uEnv.txt bevind zich op de virtuele SD kaart die automatisch verbind met de PC
-tijdens het booten.
 
-De period en duty tijd worden ingesteld via de pwm.c file. Daarnaast bouwt deze op
-basis van het GPIO nummer automatisch de juiste directory op. Het enige wat
-soms verandert is het suffix nummer van de directory (P8\_13.xx/). Dit kan echter
-aangepast worden in de pwm.c file.
+\begin{minted}{text}
+    capemgr.enable_partno=am33xx_pwm,bone_pwm_P8_13
+\end{minted}
+
+\texttt{uEnv.txt} bevindt zich op de virtuele SD kaart die automatisch verbind
+met de computer (via USB) tijdens het booten.
+
+De periode en dutycycle worden ingesteld via de \texttt{pwm.c} file. Daarnaast
+bouwt deze op basis van het GPIO nummer automatisch de juiste directory op. Het
+enige wat soms verandert is het suffix nummer van de directory (bijvoorbeeld
+\texttt{P8\_13.xx/}). Dit kan echter aangepast worden in de \texttt{pwm.c} file.
