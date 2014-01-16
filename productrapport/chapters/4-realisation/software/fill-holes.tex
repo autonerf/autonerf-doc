@@ -6,11 +6,35 @@ op het object.
 
 Het proces om de gaten te vullen is relatief eenvoudig. Door de achtergrond te
 markeren en vervolgens alle niet gemarkeerde pixels op 1 te zetten is het vullen
-voltooid.
+voltooid. Om een start te maken voor het markeren van de achtergrond is het
+mogelijk om alle rand pixels die 0 zijn te markeren als, bijvoorbeeld, een 2
+(figuur \ref{fig:fhstep1}). Dit zal op een zelfde wijze gaan als bij de remove
+border blobs operator.
 
-Om een start te maken voor het markeren van de achtergrond is het mogelijk om
-alle rand pixels die 0 zijn te markeren als, bijvoorbeeld, een 2. Dit zal op een
-zelfde wijze gaan als bij de remove border blobs operator.
+Omdat enkel de rand gescand hoeft te worden kan deze functie redelijk snel
+uitgevoerd worden (listing \ref{list:mark-non-blob-borders}). Het voltooien van
+de pixel scan wordt op dezelfde manier gedaan als beschreven bij de remove
+border blobs operatie (sectie \ref{sec:remove-border}). Vanuit alle gemarkeerde
+pixels wordt er voortborduurt tot het hele plaatje is gemarkeerd. In dit geval
+mag er dus geen 2-0 bij x connected overgang meer zijn. Tot slot moeten alle
+pixels gemarkeerd met 0 gemarkeerd worden als een 1. Daarna worden de pixels
+gemkarkeerd met 2 gemarkeerd als een 0. Helaas gaat dit niet in 1 stap omdat
+anders het hele plaatje gemarkeerd wordt als 1 (figuur \ref{fig:fhstep4}).
+
+\begin{listing}
+    \begin{minted}{c}
+    for(w = width; w >= 0; w--){
+        if(imgArr[0][w] == 0){
+            imgArr[0][w] = 2;
+        }
+        if(imgArr[height][w] == 0){
+            imgArr[height][w] = 2;
+        }
+    }
+    \end{minted}
+    \caption{Markeren van rand pixels die geen onderdeel uitmaken van een blob}
+    \label{list:mark-non-blob-borders}
+\end{listing}
 
 \begin{figure}
     \begin{center}
@@ -20,42 +44,19 @@ zelfde wijze gaan als bij de remove border blobs operator.
     \label{fig:fhstep1}
 \end{figure}
 
-Omdat enkel de rand gescand hoeft te worden kan deze functie redelijk snel
-uitgevoerd worden.
-
-\begin{cppcode}
-    for(w = width; w >= 0; w--){
-        if(imgArr[0][w] == 0){
-            imgArr[0][w] = 2;
-        }
-        if(imgArr[height][w] == 0){
-            imgArr[height][w] = 2;
-        }
-    }
-\end{cppcode}
-
-Het voltooien van de pixel scan wordt op dezelfde manier gedaan als beschreven
-bij de remove border blobs operatie. Vanuit alle gemarkeerde pixels wordt er
-voortborduurt tot het hele plaatje is gemarkeerd. In dit geval mag er dus geen
-2-0 bij x connected overgang meer zijn.
-
 \begin{figure}
     \begin{center}
         \includegraphics[scale=0.35]{figures/fill_holes_step2.png}
     \end{center}
-    \caption{Achtergrond rand markeren.}
+    \caption{Achtergrond rand markeren}
     \label{fig:fhstep2}
 \end{figure}
-
-Tot slot moeten alle 0-en gemarkeerd worden als een 1. Daarna mogen de 2-en
-weer gemarkeerd worden als een 0. Helaas gaat dit niet in 1 stap omdat anders
-het hele plaatje 1-en krijgt.
 
 \begin{figure}
     \begin{center}
         \includegraphics[scale=0.35]{figures/fill_holes_step3.png}
     \end{center}
-    \caption{Blobs inkleuren.}
+    \caption{Blobs inkleuren}
     \label{fig:fhstep3}
 \end{figure}
 
@@ -63,6 +64,6 @@ het hele plaatje 1-en krijgt.
     \begin{center}
         \includegraphics[scale=0.35]{figures/fill_holes_step4.png}
     \end{center}
-    \caption{Achtergrond weer 0 maken.}
+    \caption{Achtergrond weer 0 maken}
     \label{fig:fhstep4}
 \end{figure}
