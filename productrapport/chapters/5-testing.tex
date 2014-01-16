@@ -20,53 +20,56 @@ De software en hardware is in verschillende onderdelen getest.
 
 \subsection{Software}
 \label{sub:gpioSoft}
-Op basis van een aantal tutorials is er test code geschreven om een GPIO te 
-testen. Met een multimeter kan er gecontrolleerd worden of de GPIO correct 
-geconfigureerd is. Daarnaast kan er met een draadje een knopje gesimuleerd 
+Op basis van een aantal tutorials is er test code geschreven om een GPIO te
+testen. Met een multimeter kan er gecontrolleerd worden of de GPIO correct
+geconfigureerd is. Daarnaast kan er met een draadje een knopje gesimuleerd
 worden.
 
-De GPIO's waren redelijk snel werkend mede dankzij de duidelijke tutorials 
+De GPIO's waren redelijk snel werkend mede dankzij de duidelijke tutorials
 beschikbaar voor de BeagleBone Black.
 
-De servo's worden via hardware PWM aangestuurd. Met dank aan wat informatie 
-op het internet en de GPIO tutorials was de PWM zo aan de praat. Middels een 
+De servo's worden via hardware PWM aangestuurd. Met dank aan wat informatie
+op het internet en de GPIO tutorials was de PWM zo aan de praat. Middels een
 simpele transistor schakeling is er een servo aan een hardware PWM pin te koppelen.
-Door eerst een LED te laten dimmen kan de PWM functie gevalideerd worden. 
-Vervolgens wordt er een servo aan gekoppelt om de PWM frequentie en puls breedte 
+Door eerst een LED te laten dimmen kan de PWM functie gevalideerd worden.
+Vervolgens wordt er een servo aan gekoppelt om de PWM frequentie en puls breedte
 te bepalen.
 
-Na de tests is er test software geschreven voor alle hardware aansturingen 
+Na de tests is er test software geschreven voor alle hardware aansturingen
 zodat er via de command line de interface getest kon worden.
 
 \subsection{Hardware}
 \label{sub:gpioHard}
-De hardware is eerst op een bench getest om eventuele schade als gevollig van 
-een foutief ontwerp aan de BeagleBone Black te voorkomen. Alle pinnen zijn 
-nagemeten voor eventuele kortsluitingen. Daarnaast is de flip-flop schakeling 
+
+De hardware is eerst op een bench getest om eventuele schade als gevollig van
+een foutief ontwerp aan de BeagleBone Black te voorkomen. Alle pinnen zijn
+nagemeten voor eventuele kortsluitingen. Daarnaast is de flip-flop schakeling
 los van de rest van het systeem getest.
 
-Na een test bleek de flip-flop schakeling niet helemaal te werken. Dit is opgelost 
-door een RC schakeling tussen de /Q output en D input. Daarna bleken de MOSFETs 
-ook niet helemaal correct te werken. Het bleek dat de MOSFETs niet voldoende 
-inschakelen bij 3,3V maar pas vanaf 5V voldoende stroom door laten. Dit probleem 
+Na een test bleek de flip-flop schakeling niet helemaal te werken. Dit is opgelost
+door een RC schakeling tussen de /Q output en D input. Daarna bleken de MOSFETs
+ook niet helemaal correct te werken. Het bleek dat de MOSFETs niet voldoende
+inschakelen bij 3,3V maar pas vanaf 5V voldoende stroom door laten. Dit probleem
 is eenvoudig opgelost middels een 5V pull-up weerstand en een 2,4V zener diode.
 
 \section{Camera acquisitie}
 \label{sec:camAcq}
-De camera acquisitie is geschreven op basis van een tutorial voor video for 
-linux. Gezien de acquisitie met voldoede snelheid moet gebeuren is er een 
-benchmark uitgevoerd op de code. Met een frame-rate van 10 - 30fps is er 
-geconcludeerd dat de acquisitie voldoende snelheid heeft om een prima 
+
+De camera acquisitie is geschreven op basis van een tutorial voor video for
+linux. Gezien de acquisitie met voldoede snelheid moet gebeuren is er een
+benchmark uitgevoerd op de code. Met een frame-rate van 10 - 30fps is er
+geconcludeerd dat de acquisitie voldoende snelheid heeft om een prima
 systeem te bouwen.
 
 \section{Frame processing}
 \label{sec:framePross}
-Veel van de operatoren om het frame te verwerken zijn al gemaakt voor het 
-practicum. Deze zijn dus uitgebreid getest via de QT applicatie en op het 
-target. Daarnaast is de code voor de BeagleBone Black omgebouwd om een 
-plaatje in te lezen, het plaatje te verwerken en een plaatje als output 
-te geven. Dit omdat het systeem van het practicum geen kleuren plaatjes 
-accepteerd. Op deze manier is het dus wel mogelijk om de RGB filter te 
+
+Veel van de operatoren om het frame te verwerken zijn al gemaakt voor het
+practicum. Deze zijn dus uitgebreid getest via de QT applicatie en op het
+target. Daarnaast is de code voor de BeagleBone Black omgebouwd om een
+plaatje in te lezen, het plaatje te verwerken en een plaatje als output
+te geven. Dit omdat het systeem van het practicum geen kleuren plaatjes
+accepteerd. Op deze manier is het dus wel mogelijk om de RGB filter te
 testen.
 
 De resultaten spreken voor zich.
@@ -74,7 +77,7 @@ De resultaten spreken voor zich.
 Het originele plaatje.
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/origineel.png}
+        % \includegraphics[scale=0.35]{figures/origineel.png}
     \end{center}
     \caption{Het originele plaatje.}
     \label{fig:org}
@@ -83,7 +86,7 @@ Het originele plaatje.
 Omdat enkel rode data interessant is.
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/red_filterd.png}
+        % \includegraphics[scale=0.35]{figures/red_filterd.png}
     \end{center}
     \caption{Het grijswaarde plaatje na de rode filter.}
     \label{fig:redFilter}
@@ -92,7 +95,7 @@ Omdat enkel rode data interessant is.
 Omdat wel alle data duidelijk moet zijn, rek het contrast uit.
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/contrast_stretch.png}
+        % \includegraphics[scale=0.35]{figures/contrast_stretch.png}
     \end{center}
     \caption{Het grijswaarde plaatje na de contrast stretch.}
     \label{fig:contastStretch}
@@ -101,7 +104,7 @@ Omdat wel alle data duidelijk moet zijn, rek het contrast uit.
 Enkel echte rode data is interessant, daarom een automatische threshold.
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/threshold.png}
+        % \includegraphics[scale=0.35]{figures/threshold.png}
     \end{center}
     \caption{Het binaire plaatje na de threshold.}
     \label{fig:threshold}
@@ -110,7 +113,7 @@ Enkel echte rode data is interessant, daarom een automatische threshold.
 Blobs aan de randen zijn geen betrouwbare data, vandaar "remove border blobs".
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/remove_border_blobs.png}
+        % \includegraphics[scale=0.35]{figures/remove_border_blobs.png}
     \end{center}
     \caption{Het binare plaatje na het verwijderen van de blobs aan de randen.}
     \label{fig:removeBorderBlobs}
@@ -119,7 +122,7 @@ Blobs aan de randen zijn geen betrouwbare data, vandaar "remove border blobs".
 Om eventuele schittering op objecten te verwijderen, vul de blob.
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/fill_holes.png}
+        % \includegraphics[scale=0.35]{figures/fill_holes.png}
     \end{center}
     \caption{Het binaire plaatje na een "fill holes" operatie.}
     \label{fig:fillHoles}
@@ -128,7 +131,7 @@ Om eventuele schittering op objecten te verwijderen, vul de blob.
 Label de over gebleven blobs!
 \begin{figure}
     \begin{center}
-        \includegraphics[scale=0.35]{figures/label_blobs.png}
+        % \includegraphics[scale=0.35]{figures/label_blobs.png}
     \end{center}
     \caption{Het gelabelde plaatje.}
     \label{fig:labelBlobs}
