@@ -1,0 +1,15 @@
+\subsection{Kleuren filter}
+\label{sub:kleurfilt}
+
+Het filteren van de kleuren moet zo snel mogelijk gebeuren omdat het verwerken van
+RGB plaatjes erg zwaar is. De kleuren filter zelf is dan ook zo eenvoudig mogelijk
+geimplementeerd. Hieronder is wiskundig te zien hoe er van een RGB plaatje een
+grijswaarde wordt gemaakt.
+
+\[ gr(x, y) = r(x, y) - (g(x, y) + b(x, y)) \]
+
+Waarbij $gr$ de grijswaarde van de pixel is; $r$ de rode waarde van de pixel;
+$g$ de groene waarde van de pixel; $b$ de blauwe waarde van de pixel; $x$ de x
+positie van de pixel en $y$ de y positie van de pixel. Het domein van $g$ ligt
+tussen de 0 en 255. Wanneer een pixel waarde dus onder 0 uit komt wordt deze
+gezet op nul.

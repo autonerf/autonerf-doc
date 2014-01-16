@@ -1,0 +1,58 @@
+\subsection{Blob analyse}
+
+Na het labelen kunnen de gevonden blobs/objecten worden geanalyseerd. Door
+te controleren op massa/grootte van de blob bepaald het systeem waar het op
+moet richten. Hierbij wordt de blob met de grootste massa genomen.
+
+Eerst wordt er bij iedere blob bekeken wat de massa is van de blob.
+
+\begin{cppcode}
+//First clear the blob_mass registers
+for(i = MAX_BLOB_COUNT; i > 0; i--){
+    blob_mass[i] = 0;
+}
+
+for(i = (FRAME_SIZE - 1); i >= 0; i--){
+    if(img[i] > 0){
+        blob_mass[img[i]]++;
+    }
+}
+\end{cppcode}
+
+Dan wordt de grootste blob bepaald.
+
+\begin{cppcode}
+largest_blob = 0;
+
+for(i = blobCount; i > 0; i--){
+    if(blob_mass[i] > largest_blob){
+        largest_blob = blob_mass[i];
+    }
+}
+\end{cppcode}
+
+Tot slot moeten de coördinaten van het middelpunt bepaald worden.
+
+\begin{cppcode}
+if(imgArr[h][w] == largest_blob){
+    //Calculate height
+    if(h < min_height){
+        min_height = h;
+    }
+    if(h > max_height){
+        max_height = h;
+    }
+    blob_pos_x = (max_height - min_height) / 2;
+
+    //Calculate width
+    if(w < min_width){
+        min_width = w;
+    }
+    if(w > max_width){
+        max_width = w;
+    }
+    blob_pos_y = (max_width - min_width) / 2;
+}
+\end{cppcode}
+
+Met deze informatie kan de correctie bepaald worden.

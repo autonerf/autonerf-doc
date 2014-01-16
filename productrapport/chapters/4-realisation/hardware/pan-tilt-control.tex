@@ -1,0 +1,40 @@
+\subsection{Pan en tilt controller}
+
+De pan en tilt controller zorgt er voor dat de servo.c file met de juiste outputs
+wordt bestuurd met de juiste waarden. De servo.c file stuurt op zijn beurt de pwm.c
+file aan met de juiste frequentie en dutycycles (zet de hoek om in de juiste
+dutycycle). De \texttt{pwm.c} file zorgt er voor dat alle data naar de juiste
+file wordt gestuurd, outputs niet dubbel geconfigureerd zijn, etcetera.
+
+Om een PWM signaal te genereren dient de PWM module geactiveerd te worden. Hoe
+dit kan in Angström staat beschreven in listing \ref{lst:pwm-activation}. Het
+voorbeeld is voor pin P8.13.
+
+\begin{figure}
+    \begin{minted}{sh}
+    echo am33xx_pwm > /sys/devices/bone_capemgr.8/slots
+    echo bone_pwm_P8_13 > /sys/devices/bone_capemgr.8/slots
+    echo 20000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/period
+    echo 10000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/duty
+    \end{minted}
+    \caption{Activeren PWM}
+    \label{lst:pwm-activation}
+\end{figure}
+
+% Bron: http://www.phys-x.org/rbots/index.php?option=com_content&view=article&id=106:lesson-3-beaglebone-black-pwm&catid=46:beaglebone-black&Itemid=81
+
+Belangrijk is dat de pinmode op PWM ingesteld staat. Dit kan worden gedaan
+middels een overlay. Meer hier over in GPIO controller (sectie \ref{sec:gpio}).
+
+De \code{am33xx\_pwm} en \code{bone\_pwm\_P8\_13} kunnen standaard in slots
+worden gezet. Dit kan bereikt worden door in uEnv.txt het volgende te zetten:
+\\
+\texttt{capemgr.enable\_partno=am33xx\_pwm,bone\_pwm\_P8\_13}
+\\
+uEnv.txt bevind zich op de virtuele SD kaart die automatisch verbind met de PC
+tijdens het booten.
+
+De period en duty tijd worden ingesteld via de pwm.c file. Daarnaast bouwt deze op
+basis van het GPIO nummer automatisch de juiste directory op. Het enige wat
+soms verandert is het suffix nummer van de directory (P8\_13.xx/). Dit kan echter
+aangepast worden in de pwm.c file.

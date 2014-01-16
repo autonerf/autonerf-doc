@@ -1,0 +1,33 @@
+\subsection{Contrast stretch}
+
+Om een betrouwbaardere threshold te kunnen maken gebruiken we een contrast stretch
+operatie. Deze functie bepaald de laagste en hoogste waarde in het beeld en smeert
+deze uit over het complete grijswaarde gebied.
+
+Door een vermenigvuldigingsfactor te bepalen is het eenvoudig om dit te
+bereiken. De vermenigvuldigingsfactor zal uiteraard groter dan 1 moeten zijn,
+maar kan ook een komma getal zijn. Float operaties zijn dus essentieel en
+daarbij is een FPU (Floating Point Unit) erg handig. Om de zware calculaties te
+verminderen wordt er gebruik gemaakt van een LUT (Look Up Table) die hetzelfde
+bereik heeft als de grijswaarde. Gezien er gebruik wordt gemaakt van een
+grijswaarde bereik van 256 moet de calculatie 256x worden uitgevoerd.
+
+De verhouding wordt als volgt bepaald:
+
+\[ R = \frac{D}{max - min} \]
+
+Hierin is $R$ de vermenigvuldigingsfactor is; $D$ het grijswaarde bereik; $max$
+is de maximale pixel waarde in het originele beeld en $min$ de minimale pixel
+waarde in het originele beeld.
+
+Daarna kan de LUT gevuld worden, geïllustreerd door de volgende pseudo code:
+
+\begin{cppcode}
+    value = i * R;
+    if value > D then value = D
+    lut[i] = value;
+\end{cppcode}
+
+Tot slot kan er eenvoudig vanuit de huidige waarde in de LUT de nieuwe pixel
+waarde worden opgevraagd. Dit wordt over het hele beeld gedaan om een verbeterd
+contrast te krijgen.
