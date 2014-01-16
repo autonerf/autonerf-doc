@@ -1,1 +1,77 @@
 \subsection{Acquisitie}
+
+Het verkrijgen van camera beelden gebeurt middels de V4L2 driver die standaard
+met Linux Ångstrom wordt meegeleverd. V4L staat voor Video4Linux en is een
+API die voor een abstractie-laag zorgen voor het communiceren met een groot
+aantal verschillende webcams. Omdat veel webcams ieder een andere set commando's
+verwachten en hebben is dit erg handig omdat dan veel verschillende webcams
+kunnen worden gebruikt.
+
+Voordat er camera beelden kunnen worden gekregen moet eerst de camera
+geïnitialiseerd worden (zie bijlage \ref{app:camera-init}). Vervolgens moet de
+camera gestart worden waarna frames kunnen worden uitgelezen (listings
+\ref{lst:camera-start} en \ref{lst:camera-read}).
+
+\begin{listing}
+    \begin{minted}{c}
+    int
+    camera_start(struct camera_t * camera)
+    {
+        enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+        return ioctl(camera->fd, VIDIOC_STREAMON, &type);
+    }
+    \end{minted}
+    \caption{Het starten van een webcam met Video4Linux}
+    \label{lst:camera-start}
+\end{listing}
+
+\begin{listing}
+    \begin{minted}{c}
+    int
+    camera_frame_grab(struct camera_t * camera, struct frame_t * frame)
+    {
+        fd_set              read;
+        int                 result;
+        struct timeval      timeout;
+
+        do {
+            FD_ZERO(&read);
+            FD_SET(camera->fd, &read);
+
+            timeout.tv_sec  = 0;
+            timeout.tv_usec = 5;
+
+            result = select(camera->fd + 1, &read, NULL, NULL, &timeout);
+        } while (result < 0 && (errno = EINTR));
+
+        memset(&frame->buffer, 0, sizeof(struct v4l2_buffer));
+        frame->buffer.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        frame->buffer.memory = V4L2_MEMORY_MMAP;
+
+        if (ioctl(camera->fd, VIDIOC_DQBUF, &frame->buffer) < 0) {
+            LOG_ERROR(strerror(errno));
+
+            return -1;
+        }
+
+        frame->size   = frame->buffer.bytesused;
+        frame->pixels = (struct pixel_t *) camera->buffers[frame->buffer.index].data;
+
+        if (camera->filter) {
+            frame->filtered = (uint8_t *) calloc(frame->size, sizeof(uint8_t));
+            camera->filter(frame, frame->filtered);
+        } else {
+            frame->filtered = NULL;
+        }
+
+        return 0;
+    }
+    \end{minted}{c}
+    \caption{Het uitlezen van een frame van een webcam met Video4Linux}
+\end{listing}
+
+Zoals te zien in listing \ref{lst:camera-init} wordt er gebruik gemaakt van
+shared memory. Dit betekend dat de V4L driver direct in hetzelfde geheugen kan
+schrijven als de \autonerf applicatie wat de leestijd drastisch omlaag brengt
+(het geheugen hoeft niet byte voor byte overgezet te worden).
