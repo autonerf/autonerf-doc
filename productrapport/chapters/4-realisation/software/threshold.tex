@@ -19,33 +19,27 @@ en van alle pixels onder/boven zijn threshold een 0 maken.
 De ISO data threshold gebruikt de 1ste pixel waarde en de som van alle pixels om
 de threshold waarden te bepalen. Wiskundig kan dat als volgt uitgedrukt worden:
 
-\[ Th = s + \frac{\sum\limits_{x=0}^{x_{max-1}} \sum\limits_{y=0}^{y_{max-1}} f(x, y)}{x_{max} y_{max}} \]
+\[ Th = s + \frac{\sum\limits_{x=0}^{x_{max-1}} \sum\limits_{y=0}^{y_{max-1}} f(x, y)}{x_{max} \times y_{max}} \]
 
 Waarbij $Th$ de threshold functie is en $s$ de start waarde van de pixels.
 
-Door de som van alle pixels tegelijk te bepalen met het histogram is het
-mogelijk om een threshold te volbrengen na 2 keer het hele plaatje te hebben
-gescand.
+Door de som van alle pixels tegelijk te berekenen met het histogram is het
+mogelijk om een threshold te bepalen na 2 keer het hele plaatje te hebben
+gescand. In pseudo code zal dan de threshold waarde als volgt bepaald worden:
 
-In pseudo code zal dan de threshold waarde als volgt bepaald worden:
+\begin{minted}{c}
+for(i = 0; histogram[i] > 0; i++){
+    continue;
+}
 
-\begin{cppcode}
-    for(i = 0; histogram[i] > 0; i++){
-        continue;
-    }
-
-    Th = i + (sum / image_size);
-\end{cppcode}
+Th = i + (sum / image_size);
+\end{minted}
 
 Daarna  kan er eenvoudig met een if-statement een threshold worden gedaan:
 
-\begin{cppcode}
-    if(data >= min && data <= max){
-        data = 1;
-    } else {
-        data = 0;
-    }
-\end{cppcode}
+\begin{minted}{c}
+data = (data >= min && data <= max);
+\end{minted}
 
-Gezien de $x$ en $y$ waarden niet belangrijk zijn kan er het snelst door het
-plaatje gegaan worden met behulp van een pointer.
+Gezien de $x$ en $y$ waarden niet belangrijk zijn kan er een afbeelding het
+snelst behandeld worden met behulp van een pointer.
