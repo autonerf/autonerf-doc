@@ -12,221 +12,32 @@ Het ontwerpen van deze filters doen we middels de stappen in het vision ontwerp.
 Hieronder staat beschreven hoe het geïmplementeerd is, van frame acquisitie tot
 I/O aansturing.
 
-\input{chapters/4-realisation/software/acquisition}
-\input{chapters/4-realisation/software/filter}
-\input{chapters/4-realisation/software/contrast-stretch}
-\input{chapters/4-realisation/software/threshold}
-\input{chapters/4-realisation/software/remove-border}
-\input{chapters/4-realisation/software/fill-holes}
-\input{chapters/4-realisation/software/label-blobs}
-\input{chapters/4-realisation/software/blob-analyse}
-\input{chapters/4-realisation/software/offset}
-
-\subsection{Pan \& Tilt controller}
-\label{sub:panTiltContr}
-De pan \& tilt controller zorgt er voor dat de servo.c file met de juiste outputs
-wordt bestuurd met de juiste waarden. De servo.c file stuurt op zijn beurt de pwm.c
-file aan met de juiste frequentie en Duty-Cycles (zet de hoek om in de juiste
-Duty-Cycle). De pwm.c file zorgt er voor dat alle data naar de juiste file wordt
-gestuurd, outputs niet dubbel geconfigureerd zijn etc..
-
-Om een PWM signaal te genereren dient de PWM module geactiveerd te worden. Hoe
-dit kan in Angström staat hieronder. Het voorbeeld is voor pin P8.13.
-
-\begin{cppcode}
-echo am33xx_pwm > /sys/devices/bone_capemgr.8/slots
-echo bone_pwm_P8_13 > /sys/devices/bone_capemgr.8/slots
-echo 20000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/period
-echo 10000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/duty
-\end{cppcode}
-
-% Bron: http://www.phys-x.org/rbots/index.php?option=com_content&view=article&id=106:lesson-3-beaglebone-black-pwm&catid=46:beaglebone-black&Itemid=81
-
-Zorg er wel voor dat de pinmode op PWM ingesteld staat. Dit kan worden gedaan
-middels een overlay. Meer hier over in GPIO controller.
-
-De \texttt{am33xx\_pwm} en \texttt{bone\_pwm\_P8\_13} kunnen standaard in slots worden gezet. Dit kan
-bereikt worden door in uEnv.txt het volgende te zetten:
-\texttt{capemgr.enable\_partno=am33xx\_pwm,bone\_pwm\_P8\_13}
-uEnv.txt bevind zich op de virtuele SD kaart die automatisch verbind met de PC
-tijdens het booten.
-
-De period en duty tijd worden ingesteld via de pwm.c file. Daarnaast bouwt deze op
-basis van het GPIO nummer automatisch de juiste directory op. Het enige wat
-soms verandert is het suffix nummer van de directory (P8\_13.xx/). Dit kan echter
-aangepast worden in de pwm.c file.
-
-\subsection{GPIO controller}
-\label{sub:gpiocontr}
-Om GPIO's aan te sturen op de Beagle Bone Black dient de modus ingesteld te worden
-samen met PULL-UP/PULL-DOWN weerstanden. Daarnaast dienen deze na iedere re-boot
-weer ge-exporteert te worden om vervolgens te bepalen of het een input/output moet
-zijn en om de waarde van de GPIO te wijzigen.
-
-Het instellen van de pin modus en PULL-UP en PULL-DOWN weerstanden dient gedaan te
-worden in de overlay. Dit is een .dts file waarin het volgende staat.
-
-\begin{cppcode}
-/* <Pin offset adres> <Value> </* pin comment */>*/
-          0x0c0        0x07    /* 78: OUTPUT MODE7 + PULL-DOWN = Missile 1     */
-\end{cppcode}
-
-De waarden en pin offsets kunnen uit de tabellen in bijlage x gehaald worden. Hier
-moet dus ook een PWM pin ingesteld worden indien deze nodig is!
-
-Vervolgens dient de .dts file gecompileerd te worden naar .dtbo. Hieronder is het
-commando te vinden er vanuit gaande dat de .dts file DM-GPIO-Test.dts heet.
-
-\begin{cppcode}
-dtc -O dtb -o DM-GPIO-Test-00A0.dtbo -b 0 -@ DM-GPIO-Test.dts
-\end{cppcode}
-
-Deze .dtbo file dient vervolgens gekopieerd te worden naar de /lib/fimware folder.
-Om deze te activeren is er een re-boot nodig en vervolgens het volgende commando.
-
-\begin{cppcode}
-echo DM-GPIO-Test > /sys/devices/bone_capemgr.8/slots
-\end{cppcode}
-
-Uiteraard kan ook dit automatisch bij het opstarten gebeuren door deze in de
-uEnv.txt file te zetten. Bij Pan \& Tilt controller staat hoe dit moet.
-
-Om een GPIO te kunnen gebruiken dienen de volgende commando's uitgevoerd te worden.
-Deze commmando's worden dan ook afgehandeld door de gpio.c file.
-
-\begin{cppcode}
-echo 60 > /sys/class/gpio/export
-echo out > /sys/class/gpio/gpio60/direction
-echo 1 > /sys/class/gpio/gpio60/value
-\begin{cppcode}
-
-Dit maakt de uitgang op GPIO 60 hoog. Laag is natuurlijk eenvoudig te realiseren
-door 0 naar value te schrijven.
-Het gebruik maken van een input is eenvoudig door \emph{in} naar direction te schrijven.
-Dan is de waarde uit te lezen in value.
-
-Als het programma afsluit is het netjes om de GPIO's ook weer te \emph{unexporten}.
-
-\begin{cppcode}
-echo 60 > /sys/class/gpio/unexport
-\end{cppcode}
-
-% Bron: http://derekmolloy.ie/beaglebone/beaglebone-gpio-programming-on-arm-embedded-linux/
+% \input{chapters/4-realisation/software/acquisition}
+% \input{chapters/4-realisation/software/filter}
+% \input{chapters/4-realisation/software/contrast-stretch}
+% \input{chapters/4-realisation/software/threshold}
+% \input{chapters/4-realisation/software/remove-border}
+% \input{chapters/4-realisation/software/fill-holes}
+% \input{chapters/4-realisation/software/label-blobs}
+% \input{chapters/4-realisation/software/blob-analyse}
+% \input{chapters/4-realisation/software/offset}
+% \input{chapters/4-realisation/hardware/pan-tilt-control}
+\input{chapters/4-realisation/hardware/gpio}
 
 \section{Hardware}
 \label{sec:hardware}
+
 Het lanceer systeem met camera wordt op een platform van hout (lasergesneder)
 gemonteerd. Dit betekend dat er 10 lucht slangen, een camera kabel en tilt servo
 kabel als bundel naar het platform worden geleid. De lucht kleppen zijn op het
 lanceer platform geplaatst, waardoor de lucht slangen een geringe lengte hebben.
 
-\subsection{Shot control}
-\label{sub:shotContr}
-De shot control is een array van 10 MOSFETs die minimaal 1A kunnen schakelen ter behoeve
-van de inschakelstroom van de kleppen. Daarnaast dient er een blusdiode bij of in te
-zitten om de uitschakel piek te dempen. Een extern signaal zorgt er voor dat de kleppen
-een bepaalde tijd open blijven of kan zorgen zelfs voor een Rapid Boost™ lancering.
-
-\subsection{Tilt control}
-\label{sub:tiltContr}
-Tilt control wordt gestuurd door een servo motor die met een arm aan het lanceer
-compartiment wordt bevestigd. De servo wordt bedient vanuit de BeagleBone Black die een
-uitgangssignaal van 0 - 3,3V heeft. Omdat de servo's een PWM signaal van 0 - 5V nodig
-hebben wordt er gebruik gemaakt van een transistor + pull-up weerstand. Zo wordt het
-signaal netjes om gezet naar 0 - 3,3V.
-
-\subsection{Pan control}
-\label{sub:panContr}
-Pan control wordt ook gestuurd via een servo. Het pan platform wordt direct op de servo
-gemonteerd. Ook deze servo krijgt een PWM signaal via de BeagleBone Black. Deze wordt
-via dezelfde transistor schakeling aangestuurd.
-
-\subsection{CPU}
-\label{sub:cpu}
-De CPU is in dit geval de BeagleBone Black. Dit is een out-of-the-box linux ontwikkelings
-bordje waar direct een USB camera op kan worden aangesloten en de nodige IO's.
-
-\subsection{Veiligheid}
-\label{sub:veiligheid}
-Om onverwachts schieten te voorkomen wordt er gebruik gemaakt van een hardware beveiliging.
-Er is gekozen voor een beveiliging in hardware omdat dit het meest betrouwbaar is. Dit is
-geimplementeerd middels een D-type flip-flop die met een knop in- en uitgeschakeld kan
-worden. Deze flip-flop schakelt alle MOSFETs voor de kleppen uit en de pan/tilt servo's.
-Daarnaast wordt deze flip-flop uitgeschakeld vanuit het systeem als alle missiles op zijn.
-Er dient dan via een knop aangegeven te worden dat hij weer vol zit. Dan zal het systeem
-ook weer worden ingeschakeld.
-
-Verder is er ook rekening gehouden met het feit dat, als de applicatie niet draait, er wel
-spanning op de outputs kan staan. Om te voorkomen dat er daardoor per ongeluk wordt geschoten
-boot de BeagleBone Black standaard met pull-down weerstanden op de juiste pinnen.
-
-\subsection{Behuizing}
-\label{sub:behuizing}
-De behuizing van het systeem wordt een 10-stage raket lanceer station. Iedere stage krijgt dus 1
-buisje ter behoeve van de luchtdruk. Er kunnen dus maximaal 10 schoten worden gelost voor er
-herladen dient te worden.
-
-\subsubsection{Launcher}
-\label{subsub:launcher}
-De zo genaamde launcher is het beweegbare compartiment waar alle Nerf darts in worden geladen
-om af te schieten. Deze richt ook op de persoon.
-De servo voor het tilt systeem wordt op het pan platform gemonteerd en met een arm aan de
-launcher bevestigd. Dit wordt gedaan om de last op de servo te verminderen en de respons van
-het systeem dus beter te maken. Ook wordt er aanbevolen om het scharnierpunt niet helemaal
-achteraan te leggen zodat er een contragewicht is om nog meer last van de servo te halen.
-Om het juiste montage punt van de arm van de servo te bepalen is er een serie driehoek berekeningen
-nodig. Daarnaast kan er middels deze berekeningen ook de hoogte worden bepaald ten
-opzichte van het pan platform (in verband met de neerwaartse beweging van het contragewicht).
-Figuur 4.5 toont een schematische weergave van het systeem. In deze figuur is $S_1$ de lengte van
-het scharnierpunt tot de voorkant, $S_2$ is de lengte van het scharnierpunt tot de achterkant. $\alpha$ geeft
-de maximale hoek aan van de launcher en $\delta/B$ is de uitslag van de achterkant ( de minimale hoogte
-van de launcher).
-Het bevestigingspunt van de arm van de servo op lengte $S_1$ ten opzichte van het kantelpunt kan
-worden bepaald met de volgende formule.
-
-$P = \frac{2r}{\sin\alpha}$
-
-In deze formule is $r$ de lengte van de as tot het bevestigingspunt van de arm van de servo. Bij een
-kruisvormige servo-arm zal deze afstand ongeveer 16 mm zijn. $P$ is het bevestiginspunt op lengte
-$S_1$.
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale=0.5]{figures/kantelpunt_launcher.png}
-    \end{center}
-    \caption{Schematische weergave servo montage punt.}
-    \label{fig:berrLauncher}
-\end{figure}
-
-Door gebruik te maken van de bovenstaande formule is het mogelijk om de minimale montage hoogte van de
-launcher te bepalen:
-
-$\delta/B = S_2 \sin\alpha$
-
-Bij het maken van deze berekening is het belangrijk rekening te houden met het bevestigingspunt
-P zodat de servo niet te veel kracht moet zetten (dus niet te dicht bij het scharnierpunt). Daarnaast
-is het belangrijk wel een goede hoek/actieradius te hebben. Dit is afhankelijk van de kijkhoek
-van de camera en op welke afstand het systeem mensen moet kunnen herkennen/raken.
-
-\subsubsection{Camera}
-\label{subsub:camera}
-De camera komt boven op het lanceer station zodat de software het gekleurde object kan detecteren en
-de motor vervolgens naar dat punt in het beeld kan bewegen.
-
-\subsubsection{Pan platform}
-\label{subsub:panPlatform}
-Het pan platform is enkel voorzien van een montage houder voor de tilt servo en
-voetjes voor de montage van het lanceer platform.
-Bij het ontwerp van dit platform moet rekening gehouden worden met het zwaartepunt. Dit
-moet zo ver mogelijk in het midden van de pan servo liggen om een stabiel systeem te krijgen. Omdat
-het zwaarte punt constant veranderd door het aantal Nerf darts en tilt hoek nemen we het
-midden van de ‘launcher’ als zwaartepunt. Dan zal de tilt servo ongeveer op het tilt punt komen te
-zitten.
-
-\subsubsection{Basisstation}
-\label{subsub:base}
-Het laatste onderdeel is het platform waarin de pan servo wordt gemonteerd en de aansturing. Het
-basisstation moet een goede constructie voor de pan servo geven zodat deze stabiel
-kan bewegen. Daarnaast wordt op de achterkant de aansturing bevestigd. Het is belangrijk dat de
-nodige beveiligingssystemen die op de aansturing zitten eenvoudig te bedienen zijn. De aansturing
-wordt dan ook bij voorkeur achter het lanceer systeem en buiten het bereik van het pan platform.
+\input{chapters/4-realisation/hardware/shot}
+\input{chapters/4-realisation/hardware/tilt}
+\input{chapters/4-realisation/hardware/pan}
+\input{chapters/4-realisation/hardware/cpu}
+\input{chapters/4-realisation/hardware/security}
+\input{chapters/4-realisation/hardware/casing}
+\input{chapters/4-realisation/hardware/launcher}
+\input{chapters/4-realisation/hardware/platform-pan}
+\input{chapters/4-realisation/hardware/platform-base}

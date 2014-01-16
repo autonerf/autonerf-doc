@@ -1,0 +1,57 @@
+\subsection{GPIO controller}
+\label{sec:gpio}
+
+Om GPIO's aan te sturen op de Beagle Bone Black dient de modus ingesteld te worden
+samen met PULL-UP/PULL-DOWN weerstanden. Daarnaast dienen deze na iedere re-boot
+weer ge-exporteert te worden om vervolgens te bepalen of het een input/output moet
+zijn en om de waarde van de GPIO te wijzigen.
+
+Het instellen van de pin modus en PULL-UP en PULL-DOWN weerstanden dient gedaan te
+worden in de overlay. Dit is een .dts file waarin het volgende staat.
+
+\begin{cppcode}
+/* <Pin offset adres> <Value> </* pin comment */>*/
+          0x0c0        0x07    /* 78: OUTPUT MODE7 + PULL-DOWN = Missile 1     */
+\end{cppcode}
+
+De waarden en pin offsets kunnen uit de tabellen in bijlage x gehaald worden. Hier
+moet dus ook een PWM pin ingesteld worden indien deze nodig is!
+
+Vervolgens dient de .dts file gecompileerd te worden naar .dtbo. Hieronder is het
+commando te vinden er vanuit gaande dat de .dts file DM-GPIO-Test.dts heet.
+
+\begin{cppcode}
+dtc -O dtb -o DM-GPIO-Test-00A0.dtbo -b 0 -@ DM-GPIO-Test.dts
+\end{cppcode}
+
+Deze .dtbo file dient vervolgens gekopieerd te worden naar de /lib/fimware folder.
+Om deze te activeren is er een re-boot nodig en vervolgens het volgende commando.
+
+\begin{cppcode}
+echo DM-GPIO-Test > /sys/devices/bone_capemgr.8/slots
+\end{cppcode}
+
+Uiteraard kan ook dit automatisch bij het opstarten gebeuren door deze in de
+uEnv.txt file te zetten. Bij Pan \& Tilt controller staat hoe dit moet.
+
+Om een GPIO te kunnen gebruiken dienen de volgende commando's uitgevoerd te worden.
+Deze commmando's worden dan ook afgehandeld door de gpio.c file.
+
+\begin{cppcode}
+echo 60 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio60/direction
+echo 1 > /sys/class/gpio/gpio60/value
+\begin{cppcode}
+
+Dit maakt de uitgang op GPIO 60 hoog. Laag is natuurlijk eenvoudig te realiseren
+door 0 naar value te schrijven.
+Het gebruik maken van een input is eenvoudig door \emph{in} naar direction te schrijven.
+Dan is de waarde uit te lezen in value.
+
+Als het programma afsluit is het netjes om de GPIO's ook weer te \emph{unexporten}.
+
+\begin{cppcode}
+echo 60 > /sys/class/gpio/unexport
+\end{cppcode}
+
+% Bron: http://derekmolloy.ie/beaglebone/beaglebone-gpio-programming-on-arm-embedded-linux/

@@ -1,0 +1,7 @@
+\subsection{Tilt control}
+
+Tilt control wordt gestuurd door een servo motor die met een arm aan het lanceer
+compartiment wordt bevestigd. De servo wordt bedient vanuit de BeagleBone Black die een
+uitgangssignaal van 0 - 3,3V heeft. Omdat de servo's een PWM signaal van 0 - 5V nodig
+hebben wordt er gebruik gemaakt van een transistor + pull-up weerstand. Zo wordt het
+signaal netjes om gezet naar 0 - 3,3V.
