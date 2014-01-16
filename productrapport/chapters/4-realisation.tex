@@ -493,3 +493,121 @@ echo 60 > /sys/class/gpio/unexport
 \end{cppcode}
 
 % Bron: http://derekmolloy.ie/beaglebone/beaglebone-gpio-programming-on-arm-embedded-linux/
+
+\section{Hardware}
+\label{sec:hardware}
+Het lanceer systeem met camera wordt op een platform van hout (lasergesneder) 
+gemonteerd. Dit betekend dat er 10 lucht slangen, een camera kabel en tilt servo 
+kabel als bundel naar het platform worden geleid. De lucht kleppen zijn op het 
+lanceer platform geplaatst, waardoor de lucht slangen een geringe lengte hebben.
+
+\subsection{Shot control}
+\label{sub:shotContr}
+De shot control is een array van 10 MOSFETs die minimaal 1A kunnen schakelen ter behoeve 
+van de inschakelstroom van de kleppen. Daarnaast dient er een blusdiode bij of in te 
+zitten om de uitschakel piek te dempen. Een extern signaal zorgt er voor dat de kleppen 
+een bepaalde tijd open blijven of kan zorgen zelfs voor een Rapid Boost™ lancering.
+
+\subsection{Tilt control}
+\label{sub:tiltContr}
+Tilt control wordt gestuurd door een servo motor die met een arm aan het lanceer 
+compartiment wordt bevestigd. De servo wordt bedient vanuit de BeagleBone Black die een 
+uitgangssignaal van 0 - 3,3V heeft. Omdat de servo's een PWM signaal van 0 - 5V nodig 
+hebben wordt er gebruik gemaakt van een transistor + pull-up weerstand. Zo wordt het 
+signaal netjes om gezet naar 0 - 3,3V.
+
+\subsection{Pan control}
+\label{sub:panContr}
+Pan control wordt ook gestuurd via een servo. Het pan platform wordt direct op de servo 
+gemonteerd. Ook deze servo krijgt een PWM signaal via de BeagleBone Black. Deze wordt 
+via dezelfde transistor schakeling aangestuurd.
+
+\subsection{CPU}
+\label{sub:cpu}
+De CPU is in dit geval de BeagleBone Black. Dit is een out-of-the-box linux ontwikkelings 
+bordje waar direct een USB camera op kan worden aangesloten en de nodige IO's.
+
+\subsection{Veiligheid}
+\label{sub:veiligheid}
+Om onverwachts schieten te voorkomen wordt er gebruik gemaakt van een hardware beveiliging. 
+Er is gekozen voor een beveiliging in hardware omdat dit het meest betrouwbaar is. Dit is 
+geimplementeerd middels een D-type flip-flop die met een knop in- en uitgeschakeld kan 
+worden. Deze flip-flop schakelt alle MOSFETs voor de kleppen uit en de pan/tilt servo's. 
+Daarnaast wordt deze flip-flop uitgeschakeld vanuit het systeem als alle missiles op zijn. 
+Er dient dan via een knop aangegeven te worden dat hij weer vol zit. Dan zal het systeem 
+ook weer worden ingeschakeld.
+
+Verder is er ook rekening gehouden met het feit dat, als de applicatie niet draait, er wel 
+spanning op de outputs kan staan. Om te voorkomen dat er daardoor per ongeluk wordt geschoten 
+boot de BeagleBone Black standaard met pull-down weerstanden op de juiste pinnen.
+
+\subsection{Behuizing}
+\label{sub:behuizing}
+De behuizing van het systeem wordt een 10-stage raket lanceer station. Iedere stage krijgt dus 1
+buisje ter behoeve van de luchtdruk. Er kunnen dus maximaal 10 schoten worden gelost voor er
+herladen dient te worden.
+
+\subsubsection{Launcher}
+\label{subsub:launcher}
+De zo genaamde launcher is het beweegbare compartiment waar alle Nerf darts in worden geladen
+om af te schieten. Deze richt ook op de persoon.
+De servo voor het tilt systeem wordt op het pan platform gemonteerd en met een arm aan de
+launcher bevestigd. Dit wordt gedaan om de last op de servo te verminderen en de respons van
+het systeem dus beter te maken. Ook wordt er aanbevolen om het scharnierpunt niet helemaal
+achteraan te leggen zodat er een contragewicht is om nog meer last van de servo te halen.
+Om het juiste montage punt van de arm van de servo te bepalen is er een serie driehoek berekeningen
+nodig. Daarnaast kan er middels deze berekeningen ook de hoogte worden bepaald ten
+opzichte van het pan platform (in verband met de neerwaartse beweging van het contragewicht).
+Figuur 4.5 toont een schematische weergave van het systeem. In deze figuur is $S_1$ de lengte van
+het scharnierpunt tot de voorkant, $S_2$ is de lengte van het scharnierpunt tot de achterkant. $\alpha$ geeft
+de maximale hoek aan van de launcher en $\delta/B$ is de uitslag van de achterkant ( de minimale hoogte
+van de launcher).
+Het bevestigingspunt van de arm van de servo op lengte $S_1$ ten opzichte van het kantelpunt kan
+worden bepaald met de volgende formule.
+
+$P = \frac{2r}{\sin\alpha}$
+
+In deze formule is $r$ de lengte van de as tot het bevestigingspunt van de arm van de servo. Bij een
+kruisvormige servo-arm zal deze afstand ongeveer 16 mm zijn. $P$ is het bevestiginspunt op lengte
+$S_1$.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/kantelpunt_launcher.png}
+    \end{center}
+    \caption{Schematische weergave servo montage punt.}
+    \label{fig:berrLauncher}
+\end{figure}
+
+Door gebruik te maken van de bovenstaande formule is het mogelijk om de minimale montage hoogte van de
+launcher te bepalen:
+
+$\delta/B = S_2 \sin\alpha$
+
+Bij het maken van deze berekening is het belangrijk rekening te houden met het bevestigingspunt
+P zodat de servo niet te veel kracht moet zetten (dus niet te dicht bij het scharnierpunt). Daarnaast
+is het belangrijk wel een goede hoek/actieradius te hebben. Dit is afhankelijk van de kijkhoek
+van de camera en op welke afstand het systeem mensen moet kunnen herkennen/raken.
+
+\subsubsection{Camera}
+\label{subsub:camera}
+De camera komt boven op het lanceer station zodat de software het gekleurde object kan detecteren en
+de motor vervolgens naar dat punt in het beeld kan bewegen.
+
+\subsubsection{Pan platform}
+\label{subsub:panPlatform}
+Het pan platform is enkel voorzien van een montage houder voor de tilt servo en
+voetjes voor de montage van het lanceer platform.
+Bij het ontwerp van dit platform moet rekening gehouden worden met het zwaartepunt. Dit
+moet zo ver mogelijk in het midden van de pan servo liggen om een stabiel systeem te krijgen. Omdat
+het zwaarte punt constant veranderd door het aantal Nerf darts en tilt hoek nemen we het
+midden van de ‘launcher’ als zwaartepunt. Dan zal de tilt servo ongeveer op het tilt punt komen te
+zitten.
+
+\subsubsection{Basisstation}
+\label{subsub:base}
+Het laatste onderdeel is het platform waarin de pan servo wordt gemonteerd en de aansturing. Het
+basisstation moet een goede constructie voor de pan servo geven zodat deze stabiel
+kan bewegen. Daarnaast wordt op de achterkant de aansturing bevestigd. Het is belangrijk dat de
+nodige beveiligingssystemen die op de aansturing zitten eenvoudig te bedienen zijn. De aansturing
+wordt dan ook bij voorkeur achter het lanceer systeem en buiten het bereik van het pan platform.
