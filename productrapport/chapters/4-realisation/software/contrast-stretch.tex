@@ -22,11 +22,11 @@ waarde in het originele beeld.
 
 Daarna kan de LUT gevuld worden, geïllustreerd door de volgende pseudo code:
 
-\begin{cppcode}
+\begin{minted}{text}
     value = i * R;
     if value > D then value = D
     lut[i] = value;
-\end{cppcode}
+\end{minted}
 
 Tot slot kan er eenvoudig vanuit de huidige waarde in de LUT de nieuwe pixel
 waarde worden opgevraagd. Dit wordt over het hele beeld gedaan om een verbeterd
