@@ -7,8 +7,8 @@ dutycycle). De \texttt{pwm.c} file zorgt er voor dat alle data naar de juiste
 file wordt gestuurd, outputs niet dubbel geconfigureerd zijn, etcetera.
 
 Om een PWM signaal te genereren dient de PWM module geactiveerd te worden. Hoe
-dit kan in Angström staat beschreven in listing \ref{lst:pwm-activation}. Het
-voorbeeld is voor pin P8.13.
+dit kan in Ångström staat beschreven in listing \ref{lst:pwm-activation}. Het
+voorbeeld is voor pin texttt{P8.13}.
 
 \begin{listing}
     \begin{minted}{sh}
@@ -17,7 +17,7 @@ voorbeeld is voor pin P8.13.
     echo 20000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/period
     echo 10000000 > /sys/devices/ocp.2/pwm_test_P8_13.15/duty
     \end{minted}
-    \caption{Activeren PWM}
+    \caption{Activeren en instellen PWM}
     \label{lst:pwm-activation}
 \end{listing}
 
@@ -27,7 +27,7 @@ Belangrijk is dat de pinmode op PWM ingesteld staat. Dit kan worden gedaan
 middels een overlay. Meer hier over in GPIO controller (sectie \ref{sec:gpio}).
 
 De \texttt{am33xx\_pwm} en \texttt{bone\_pwm\_P8\_13} kunnen standaard in slots
-worden gezet. Dit kan bereikt worden door in uEnv.txt het volgende te zetten:
+worden gezet. Dit kan bereikt worden door in \texttt{uEnv.txt} het volgende te zetten:
 
 \begin{minted}{text}
     capemgr.enable_partno=am33xx_pwm,bone_pwm_P8_13
