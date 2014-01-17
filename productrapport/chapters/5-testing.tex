@@ -50,7 +50,7 @@ Na een test bleek de flip-flop schakeling niet helemaal te werken. Dit is opgelo
 door een RC schakeling tussen de /Q output en D input. Daarna bleken de MOSFETs
 ook niet helemaal correct te werken. Het bleek dat de MOSFETs niet voldoende
 inschakelen bij 3,3V maar pas vanaf 5V voldoende stroom door laten. Dit probleem
-is eenvoudig opgelost middels een 5V pull-up weerstand en een 2,4V zener diode 
+is eenvoudig opgelost middels een 5V pull-up weerstand en een 2,4V zener diode
 (zie bijlage \ref{app:sig-conv-schematic} en \ref{app:sig-conv-pcb}).
 
 \section{Camera acquisitie}
@@ -75,68 +75,70 @@ testen.
 
 De resultaten spreken voor zich.
 
-Het originele plaatje.
-\begin{figure}
+Het originele plaatje is te zien in afbeelding \ref{fig:org}. Vervolgens is deze
+gefiltered met een rood-filter (afbeelding \ref{fig:redFilter}). Omdat alle date
+goed zichtbaar moet zijn wordt een contrast stretch uitgevoerd (afbeelding \ref{fig:contastStretch})
+waarna de afbeelding gethreshold kan worden (afbeelding \ref{fig:threshold}).
+Omdat blobs die zich aan de rand van een frame bevinden niet betrouwbaar zijn
+moeten deze verwijderd worden (afbeelding \ref{fig:removeBorderBlobs}) en om
+eventuele schitteringen of reflecties tegen te gaan worden ook gaten in blobs
+gevuld (afbeelding \ref{fig:fillHoles}). Uiteindelijk worden de blobs gelabeled
+(afbeelding \ref{fig:labelBlobs}) en geanalyseerd waarna hier uit komt dat
+(in de voorbeeld uitbeelding) de zwaarste blob (en dus de marker) zich bevindt
+rond coordinaat (322, 325).
+
+\begin{figure}[b]
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/origineel.png}
+        \includegraphics[scale=0.35]{figures/vision/original.png}
     \end{center}
     \caption{Het originele plaatje.}
     \label{fig:org}
 \end{figure}
 
-Omdat enkel rode data interessant is.
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/red_filterd.png}
+        \includegraphics[scale=0.35]{figures/vision/filtered.png}
     \end{center}
     \caption{Het grijswaarde plaatje na de rode filter.}
     \label{fig:redFilter}
 \end{figure}
 
-Omdat wel alle data duidelijk moet zijn, rek het contrast uit.
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/contrast_stretch.png}
+        \includegraphics[scale=0.35]{figures/vision/stretched.png}
     \end{center}
     \caption{Het grijswaarde plaatje na de contrast stretch.}
     \label{fig:contastStretch}
 \end{figure}
 
-Enkel echte rode data is interessant, daarom een automatische threshold.
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/threshold.png}
+        \includegraphics[scale=0.35]{figures/vision/thresholded.png}
     \end{center}
     \caption{Het binaire plaatje na de threshold.}
     \label{fig:threshold}
 \end{figure}
 
-Blobs aan de randen zijn geen betrouwbare data, vandaar "remove border blobs".
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/remove_border_blobs.png}
+        \includegraphics[scale=0.35]{figures/vision/borders.png}
     \end{center}
     \caption{Het binare plaatje na het verwijderen van de blobs aan de randen.}
     \label{fig:removeBorderBlobs}
 \end{figure}
 
-Om eventuele schittering op objecten te verwijderen, vul de blob.
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/fill_holes.png}
+        \includegraphics[scale=0.35]{figures/vision/holes.png}
     \end{center}
-    \caption{Het binaire plaatje na een "fill holes" operatie.}
+    \caption{Het binaire plaatje na een \emph{fill holes} operatie.}
     \label{fig:fillHoles}
 \end{figure}
 
-Label de over gebleven blobs!
 \begin{figure}
     \begin{center}
-        % \includegraphics[scale=0.35]{figures/label_blobs.png}
+        \includegraphics[scale=0.35]{figures/vision/labeled.png}
     \end{center}
     \caption{Het gelabelde plaatje.}
     \label{fig:labelBlobs}
 \end{figure}
-
-Nadat de blob analyzer de grootste blob heeft gevonden wordt het middelpunt doorgegeven.
-Dat is in dit geval (xx, yy)pixels.
