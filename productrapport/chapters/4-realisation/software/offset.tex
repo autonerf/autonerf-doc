@@ -1,1 +1,40 @@
 \subsection{Afwijking berekening}
+
+Het berekenen van de afwijking van een blob ten opzichte van het centrum van
+een frame is een redelijk eenvoudige floating point berekening. Voordat de
+afwijking berekend kan worden moet de \emph{Field of View} (FOV of $\varphi$)
+van de camera bekend zijn. Omdat dit niet in de specificaties van de
+gebruikte camera staat is hiervoor een FOV van $45\,^{\circ}$ gebruikt. Hiermee
+kan, samen met de resolutie van een frame, het aantal graden per pixels
+berekend worden (uitgedrukt in $\phi$):
+
+\[
+    \phi = \frac{\varphi}{\sqrt{w^2 + h^2}}
+\]
+
+Na het invullen van deze formule komt uit:
+
+\[
+    \phi = \frac{45\,^{\circ}}{\sqrt{640^2 + 480^2}} = 0.05625\,^{\circ} \approx 0.06\,^{\circ}
+\]
+
+Hieruit blijkt dat er ongeveer $0.06\,^{\circ}$ graden per pixel zijn. Als er
+dan een afwijking is van, bijvoorbeeld, 125 pixels op de X-as en -20 pixels op
+de Y-as (en we hebben geen margin-of-error ingesteld) dan komt dit overeen met
+(ongeveer):
+
+\[
+    \phi_x = 0.06\,^{\circ} \times 125 = 7.5\,^{\circ} \\
+\]
+
+\[
+    \phi_y = 0.06\,^{\circ} \times -20 = -1.2\,^{\circ}
+\]
+
+Het is ook mogelijk om een \emph{margin-of-error} in te stellen, wat betekend
+dat er een ruimte om het centrum van het frame heen gezet wordt waarin, als de
+afwijking kleiner is dan dat, het als ``goed genoeg'' beschouwd kan worden.
+
+Door de bovenstaande formules te gebruiken in combinatie met een margin of
+error kan bijvoorbeeld gezegd worden dat de $\phi_y$ goed is en alleen de X-as
+(pan of $\phi_x$) bijgesteld moet worden.
