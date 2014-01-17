@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=1cm,row sep=.25cm},
+  source/.style={inner sep=.3cm},
+  process/.style={draw,thick,rounded corners,fill=yellow!10,inner sep=.3cm},
+  sink/.style={source},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={->,>=stealth',shorten >=1pt,thick,font=\sffamily\footnotesize},
+  every node/.style={align=center,font=\footnotesize}]
+
+    \matrix {
+            \& \& \node[sink](detect){Marker gedetecteerd}; \\
+        \node[source](frame){Frame}; \& \node[process](vision){\texttt{vision}}; \\
+            \& \& \node[sink](position){Marker positie};\\
+    };
+
+    \draw[to](frame)--(vision);
+    \draw[to](vision)|-(detect);
+    \draw[to](vision)|-(position);
+\end{tikzpicture}

@@ -1,26 +1,133 @@
 \chapter{Technisch Ontwerp}
 
-% architectuur van de gekozen oplossing (blokschema's, hiërarchische schema's,
-% architectuurschema's, wat in hardware, wat in software); afwegen van
-% alternatieven; globale oplossing van de belangrijkste of meest complexe
-% deelfuncties en onderdelen, toestandsdiagrammen van (belangrijkste of meest
-% complexe) functies, gekozen implementatie van datastructuren, eventueel
-% pseudo-code; hoe worden de functies en onderdelen gerealiseerd
+\section{Software}
+\subsection{Hierarchie}
+
+De architectuur van het \autonerf systeem beschreven in sectie
+\ref{sec:func-architecture} is opgedeeld in drie logische blokken:
+
+\begin{enumerate}
+    \item \texttt{reader};
+    \item \texttt{vision};
+    \item \texttt{controller};
+\end{enumerate}
+
+Deze logische blokken kunnen elk opgedeeld worden in een aantal sub-blokken.
+De hierarchie van deze blokken en sub-blokken is te zien in figuur
+\ref{fig:hierarchy}.
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/hierachy}
+    \end{center}
+    \caption{De hierarchie van het \autonerf systeem}
+    \label{fig:hierarchy}
+\end{figure}
+
+\subsection{Architectuur}
+
+De data-flow van het systeem begint bij het \texttt{reader} subsysteem. Dit
+subsysteem is verantwoordelijk voor het uitlezen van frames van de camera en
+het filteren van deze frames (zie sectie \ref{sub:kleurfilt}) middels het
+\texttt{filter} subsubsysteem. Nadat een frame gefiltered is gaat het
+gefilterde frame door naar het \texttt{vision} subsysteem. In dit subsysteem
+worden een aantal vision operatoren uitgevoerd op het frame om een marker in
+het frame te herkennen en de positie hiervan te bepalen, namelijk:
+
+\begin{enumerate}
+    \item \texttt{Contrast Stretch}: verbeter het contrast van het frame;
+    \item \texttt{Threshold ISO Data}: threshold het frame zodat het een binaire
+        afbeelding wordt;
+    \item \texttt{Remove Border Blobs}: verwijder blobs die zich aan de rand
+        van het frame bevinden;
+    \item \texttt{Fill Holes}: vul gaten in blobs op zodat ze minder warrig
+        worden;
+    \item \texttt{Label Blobs}: geef elke blob een afzonderlijk label zodat ze
+        onderschijden kunnen worden;
+    \item \texttt{Blob Analyse}: analyseer blobs en berekeen het centrum van
+        de grootste blob.
+\end{enumerate}
+
+Als het centrum van de grootste blob gevonden is door de \texttt{blob analyse}
+operator wordt de grootte van de blob controleerd. Deze moet boven een bepaalde
+grens liggen omdat anders ruis ook kan worden gedetecteerd als marker, terwijl
+dit natuurlijk niet de bedoeling is. Als er daadwerkelijk een marker is gevonden
+wordt de positie van deze doorgegeven aan het \texttt{controller} subsysteem.
+
+Dit subsysteem is verantwoordelijk voor het positioneren en schieten van de
+\autonerf launcher. Allereerst wordt de afwijking van de marker tot het centrum
+van het frame bepaald in graden. Als deze groter is dan een bepaalde waarde
+wordt de positie van de launcher zowel de pan- als tilt-as aangepast. Als de
+afwijking lager is dan een bepaalde waarde (bijvoorbeeld 50 pixels) wordt
+aangenomen dat de launcher het doel bereikt heeft en dat er geschoten kan
+worden. Dit commando wordt gegeven en een uitgang wordt hoog gemaakt waardoor
+er een dart afgevuurd wordt.
+
+\subsubsection{\texttt{reader}}
+
+Figuur \ref{fig:ipo-reader} toont het IPO-schema van het \texttt{reader}
+subsysteem. De ingang van het systeem is de op het systeem aangesloten camera.
+De uitgang van het systeem is een grijswaarde frame wat het van de camera
+ontvangen RGB-frame is nadat het is gefiltered.
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/ipo/reader}
+    \end{center}
+    \caption{Het IPO-schema van het \texttt{reader} subsysteem}
+    \label{fig:ipo-reader}
+\end{figure}
+
+\subsubsection{\texttt{vision}}
+
+Figuur \ref{fig:ipo-vision} toont het IPO-schema van het \texttt{vision}
+subsysteem. Zoals te zien in het schema heeft het systeem één ingang: het
+grijswaarde frame dat gegenereerd is door het \texttt{reader} subsysteem.
+
+Daarnaast heeft het subsysteem twee uitgangen: of er een marker gedetecteerd is
+en de coördinaten van de gedetecteerde marker als deze aanwezig is.
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/ipo/vision}
+    \end{center}
+    \caption{Het IPO-schema van het \texttt{vision} subsysteem}
+    \label{fig:ipo-vision}
+\end{figure}
+
+\subsubsection{\texttt{controller}}
+
+Het IPO-schema van het \texttt{controller} subsysteem (figuur
+\ref{fig:ipo-controller}) laat zien dat dit subsysteem één ingang heeft: de
+positie van de gedetecteerde marker. Als er in het \texttt{vision} subsysteem
+geen marker gedetecteerd is wordt het \texttt{controller} subsysteem niet
+aangeroepen.
+
+De uitgangen van het \texttt{controller} subsysteem zijn het eventueel aansturen
+van de pan en tilt en het vuren van darts.
+
+\begin{figure}[H]
+    \begin{center}
+        \input{figures/ipo/controller}
+    \end{center}
+    \caption{Het IPO-schema van het \texttt{controller} subsysteem}
+    \label{fig:ipo-controller}
+\end{figure}
 
 \section{Hardware}
 \label{sec:hardware}
 
 \subsection{Opzet}
 \label{sub:opzet}
-Het initiële ontwerp was een combinatie systeem van FPGA en een CPU. Door in 
-de FPGA operatoren te implementeren moest er een hoge frame-rate gehaald kunnen 
-worden. Mede door de communicatie complexiteit is er afgezien van een FPGA 
-systeem en is er gekozen voor een snelle processor met Linux. Zo kan er gemakkelijk 
+Het initiële ontwerp was een combinatie systeem van FPGA en een CPU. Door in
+de FPGA operatoren te implementeren moest er een hoge frame-rate gehaald kunnen
+worden. Mede door de communicatie complexiteit is er afgezien van een FPGA
+systeem en is er gekozen voor een snelle processor met Linux. Zo kan er gemakkelijk
 gebruik worden gemaakt van een USB camera.
 
 \subsection{Ontwikkelingsbord}
 \label{sub:devboard}
-De markt voor Linux gebaseerde ontwikkelingsbordjes is redelijk uitgebreid. Voor 
+De markt voor Linux gebaseerde ontwikkelingsbordjes is redelijk uitgebreid. Voor
 dit project zijn er echter een aantal eisen.
 
 \begin{itemize}
@@ -32,22 +139,22 @@ dit project zijn er echter een aantal eisen.
 	\item het moet betaalbaar blijven
 \end{itemize}
 
-Gezien het erg belangrijk is om voldoende informatie te kunnen vinden over aansturing 
-van onder andere hardware en PWM pinnen is er besloten om een BeagleBone Black te 
-nemen. Met 6 PWM kanalen, 69 GPIO's, 512Mb DDR3 RAM en een 1GHz CPU is dit een prima 
+Gezien het erg belangrijk is om voldoende informatie te kunnen vinden over aansturing
+van onder andere hardware en PWM pinnen is er besloten om een BeagleBone Black te
+nemen. Met 6 PWM kanalen, 69 GPIO's, 512Mb DDR3 RAM en een 1GHz CPU is dit een prima
 apparaat om te gebruiken voor dit project.
 
 \subsection{Cape}
 \label{sub:cape}
-Om de veiligheid van personen om het systeem te kunnen garanderen wordt er wederom 
-gebruik gemaakt van een hardware-matig beveiligingssysteem. Bestaand uit een 
+Om de veiligheid van personen om het systeem te kunnen garanderen wordt er wederom
+gebruik gemaakt van een hardware-matig beveiligingssysteem. Bestaand uit een
 vereenvoudigde versie van de PC + Arduino combinatie.
-De interface zal bestaan uit een 3-tal LEDs en een 2-tal knoppen. De 3 LEDs zullen 
-de gebruiker laten weten of dat de applicatie aan staat of niet, of dat het apparaat 
+De interface zal bestaan uit een 3-tal LEDs en een 2-tal knoppen. De 3 LEDs zullen
+de gebruiker laten weten of dat de applicatie aan staat of niet, of dat het apparaat
 kan schieten of niet en of dat er herladen moet worden.
-Met de 2 knoppen kan het schieten en draaien hardware-matig geactiveerd en gedeactiveerd 
+Met de 2 knoppen kan het schieten en draaien hardware-matig geactiveerd en gedeactiveerd
 worden. Daarnaast zit er een knop op om aan te geven dat het systeem herladen is.
-De interface dient als cape op de BeagleBone Black gemonteerd te worden. Verder zal de 
-cape de nodige voedingsspanningen voorzien aan de kleppen, servo's en de BeagleBone Black 
-zelf. Door de applicatie automatisch te laten starten op de BeagleBone Black is het doel 
+De interface dient als cape op de BeagleBone Black gemonteerd te worden. Verder zal de
+cape de nodige voedingsspanningen voorzien aan de kleppen, servo's en de BeagleBone Black
+zelf. Door de applicatie automatisch te laten starten op de BeagleBone Black is het doel
 een plug-and-play systeem te maken.

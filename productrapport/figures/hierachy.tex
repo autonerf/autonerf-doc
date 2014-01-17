@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=1cm,row sep=1cm},
+  source/.style={inner sep=.3cm},
+  process/.style={draw,thick,rounded corners,fill=yellow!10,inner sep=.3cm},
+  sink/.style={source},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={->,>=stealth',shorten >=1pt,thick,font=\sffamily\footnotesize},
+  sub/.style={<-,>=stealth',shorten >=1pt,thick,font=\sffamily\footnotesize},
+  every node/.style={align=center,font=\footnotesize}]
+
+    \matrix {
+        \node[process](reader){\texttt{reader}}; \& \& \node[process](vision){\texttt{vision}}; \& \& \node[process](control){\texttt{controller}}; \\
+
+        \& \node[process](filter){\texttt{filter}}; \& \& \node[process](oper){Vision operators}; \\
+    };
+
+    \draw[to](reader) -- (vision);
+    \draw[to](vision) -- (control);
+
+    \draw[sub](reader) |- (filter);
+    \draw[sub](vision) |- (oper);
+\end{tikzpicture}
