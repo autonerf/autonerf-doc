@@ -7,14 +7,15 @@ weer ge-exporteert te worden om vervolgens te bepalen of het een input/output mo
 zijn en om de waarde van de GPIO te wijzigen.
 
 Het instellen van de pin modus en PULL-UP en PULL-DOWN weerstanden dient gedaan te
-worden in de overlay. Dit is een .dts file waarin het volgende staat.
+worden in de overlay. Dit is een .dts file waarin onder andere de volgende informatie 
+staat.
 
 \begin{minted}{text}
 /* <Pin offset adres> <Value> </* pin comment */>*/
           0x0c0        0x07    /* 78: OUTPUT MODE7 + PULL-DOWN = Missile 1     */
 \end{minted}
 
-De waarden en pin offsets kunnen uit de tabellen in bijlage x gehaald worden. Hier
+De waarden en pin offsets kunnen uit de tabellen in bijlage \ref{app:gpio} gehaald worden. Hier
 moet dus ook een PWM pin ingesteld worden indien deze nodig is!
 
 Vervolgens dient de .dts file gecompileerd te worden naar .dtbo. Hieronder is het
@@ -25,7 +26,8 @@ dtc -O dtb -o DM-GPIO-Test-00A0.dtbo -b 0 -@ DM-GPIO-Test.dts
 \end{minted}
 
 Deze .dtbo file dient vervolgens gekopieerd te worden naar de /lib/fimware folder.
-Om deze te activeren is er een re-boot nodig en vervolgens het volgende commando.
+Om deze te activeren is er een re-boot nodig en vervolgens kan deze aan de device 
+tree worden toegevoegd middels het commando hieronder.
 
 \begin{minted}{sh}
 echo DM-GPIO-Test > /sys/devices/bone_capemgr.8/slots
@@ -34,6 +36,9 @@ echo DM-GPIO-Test > /sys/devices/bone_capemgr.8/slots
 Uiteraard kan ook dit automatisch bij het opstarten gebeuren door deze in de
 \texttt{uEnv.txt} file te zetten. In sectie \ref{sec:pan-tilt-control} staat
 beschreven hoe.
+
+Omdat er pinnen worden gebruikt die ook voor de HDMI interface worden gebruikt 
+is het nodig om de HDMI interface uit te zetten in de device tree.
 
 Om een GPIO te kunnen gebruiken dienen de volgende commando's uitgevoerd te worden.
 Deze commmando's worden dan ook afgehandeld door de gpio.c file.

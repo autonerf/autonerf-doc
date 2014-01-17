@@ -4,3 +4,22 @@
 % Wat is wel en wat is niet gerealiseerd?
 % Wat kan er aan het product worden aangevuld, uitgebreid, verbeterd?
 
+Doordat er in een later stadium is besloten geen FPGA te gebruiken voor 
+acquisitie en filtering hebben we een ander product opgeleverd als in 
+het plan van aanpak beschreven staat. Achteraf gezien is dat de juiste 
+beslissing geweest gezien er te veel lastige onderdelen in dat idee 
+zaten.
+De aanpak met de BeagleBone Black is goed gelukt gezien er veel informatie 
+beschikbaar was rondom het onderwerp. Code voor externe communicatie 
+(frame grabber camera, I/O's en PWM aansturen) was prima te realiseren 
+ondanks dat de frame grabber af en toe wat instabiel was.
+Dankzij de goede ondersteuning van diverse vakken is het goed gelukt de 
+informatie uit het beeld te filteren.
+
+Op het moment van schrijven zijn er wel uitbreidingen op het systeem aan 
+te bregen. Zo kan het object nog gedetecteerd worden middels een detectie 
+methode, bijvoorbeeld formfactor of de moment methode. Daarnaast kan er 
+gebruik worden gemaakt van andere (meerdere) of instelbare kleuren filters. 
+Ook is de snelheid van operatoren nog op te voeren door gebruik te maken 
+van de NEON instructies (SIMD - Singele Instruction Multiple Data). Zo 
+kan de response van het systeem verbeterd worden.
