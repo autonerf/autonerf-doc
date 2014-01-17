@@ -15,6 +15,7 @@
 \usepackage{amsmath}
 \usepackage{units}
 \usepackage{xspace}
+\usepackage[toc,page]{appendix}
 
 \usepackage{tikz}
 \usetikzlibrary{trees}
@@ -26,8 +27,12 @@
 
 % Custom commands
 \newcommand{\autonerf}{\textsc{Autonerf}\xspace}
+\renewcommand{\appendixname}{Bijlage}
+\renewcommand{\appendixtocname}{Bijlagen}
+\renewcommand{\appendixpagename}{Bijlagen}
 
 \begin{document}
+    \input{titlepage}
     \tableofcontents
     \input{chapters/1-introduction}
     \input{chapters/2-functional-design}
@@ -35,4 +40,15 @@
     \input{chapters/4-realisation}
     \input{chapters/5-testing}
     \input{chapters/6-conclusion}
+
+    \begin{appendices}
+    \input{appendix/camera-init}
+    \input{appendix/launcher}
+    \input{appendix/pan-platform}
+    \input{appendix/base-platform}
+    \input{appendix/pcbs}
+    \input{appendix/schematics}
+    \input{appendix/signal-converter}
+    \input{appendix/cape}
+    \end{appendices}
 \end{document}
