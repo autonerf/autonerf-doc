@@ -46,10 +46,9 @@ verschillende logische blokken (figuur \ref{fig:ipo-main}).
 \begin{enumerate}
     \item De \texttt{reader} is verantwoordelijk is voor de acquisitie
         van frames vanuit de real-time feed van camera beelden;
-    \item De \texttt{detector} is verantwoordelijk voor het detecteren van
-        markers in een frame van de camera feed;
-    \item De \texttt{localizer} is verantwoordelijk voor het bepalen van de
-        positie en huidige afwijking van een gedeteceerde marker;
+    \item De \texttt{vision} is verantwoordelijk voor het detecteren van
+        markers in een frame van de camera feed en het bepalen van de
+        afwijking hiervan;
     \item De \texttt{controller} is verantwoordelijk voor het aansturen van
         de Nerfgun en het vuren van darts.
 \end{enumerate}

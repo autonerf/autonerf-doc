@@ -11,17 +11,15 @@
     \matrix {
         \node[source](feed){Camera beelden};
             \& \node[process](read){Reader};
-            \& \node[process](detect){Detector};
-            \& \node[process](local){Localizer};
+            \& \node[process](vision){Vision};
             \& \node[process](control){Controller};
             \& \node[sink](aim){Richten van Nerfgun}; \\
-            \& \& \& \& \& \node[sink](fire){Vuren van darts}; \\
+            \& \& \& \& \node[sink](fire){Vuren van darts}; \\
     };
 
     \draw[to](feed) -- (read);
-    \draw[to](read) -- (detect);
-    \draw[to](detect) -- (local);
-    \draw[to](local) -- (control);
+    \draw[to](read) -- (vision);
+    \draw[to](vision) -- (control);
     \draw[to](control) -- (aim);
     \draw[to](control) |- (fire);
 \end{tikzpicture}
